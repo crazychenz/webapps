@@ -8,7 +8,6 @@ package com.vagries1.homework3;
 
 import static java.lang.Math.abs;
 
-import java.util.Map;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,28 +15,23 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 public class Main {
 
-    private static final Logger LOGGER = 
-        LogManager.getLogger(Main.class);
+    private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
     public int product(int arg1, int arg2) {
         int result = 0;
 
         result = arg1 * arg2;
-        LOGGER.printf(
-            Level.DEBUG, 
-            "Calculated %d * %d is %d\n", 
-            arg1, 
-            arg2, 
-            result);
+        LOGGER.printf(Level.DEBUG, "Calculated %d * %d is %d\n", arg1, arg2, result);
 
         return result;
     }
 
     public static void main(String[] args) {
 
-        Map<String, String> env = System.getenv();
-        if (!env.containsKey("ENABLE_LOGGING") || 
-            env.get("ENABLE_LOGGING").compareTo("1") != 0) {
+        // Boilerplate logger enable/disable code.
+        if (!System.getenv().containsKey("ENABLE_LOGGING")) {
+            Configurator.setRootLevel(Level.OFF);
+        } else if (System.getenv().get("ENABLE_LOGGING").compareTo("1") != 0) {
             Configurator.setRootLevel(Level.OFF);
         }
 

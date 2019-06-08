@@ -6,4 +6,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({MainTest.class})
-public class TstRunner {}
+public class TstRunner {
+    // This class exists to facilitate the associated annotations.
+}

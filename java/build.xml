@@ -8,6 +8,7 @@
     <property name="dist.dir" location="dist" />
     <property name="docs.dir" location="docs" />
     <property name="lib.dir" location="lib" />
+    <property name="enable_log4j" value="0" />
 
     <path id="lib-classpath">
         <fileset dir="${lib.dir}">
@@ -20,6 +21,8 @@
         <delete dir="${build.dir}" />
         <delete dir="${docs.dir}" />
         <delete dir="${dist.dir}" />
+        <delete file="test-log4j.log" />
+        <delete file="run-log4j.log" />
     </target>
 
     <!-- Creates the  build, docs and dist directory-->
@@ -44,12 +47,13 @@
     </target>
 
     <!-- Compiles the java code (including the usage of library for JUnit) -->
-    <!-- Removing "style" dependency due to EN 605.681 style Guide 80 char limit -->
-    <target name="compile" depends="">
+    <target name="compile" depends="style">
 
         <javac debug="true" includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}">
             <classpath refid="lib-classpath" />
             <compilerarg value="-Xlint" />
+            <!-- removes unclaimed annotation warning -->
+            <compilerarg value="-Xlint:-processing" />
         </javac>
 
     </target>
@@ -81,7 +85,7 @@
 
     <target name="run" depends="jar">
         <java fork="true" classname="com.vagries1.homework3.Main">
-            <env key="ENABLE_LOGGING" value="0"/>
+            <env key="ENABLE_LOGGING" value="${enable_log4j}"/>
             <classpath>
                 <pathelement location="dist/en605681.jar" />
             </classpath>
@@ -93,8 +97,8 @@
     </target>
 
     <target name="test" depends="jar">
-        <junit printsummary="on" haltonfailure="yes" fork="true" showoutput="yes">
-            <env key="ENABLE_LOGGING" value="0"/>
+        <junit printsummary="on" haltonfailure="yes" fork="true">
+            <env key="ENABLE_LOGGING" value="${enable_log4j}" />
             <classpath>
                 <pathelement location="dist/en605681.jar" />
                 <path refid="lib-classpath" />
@@ -108,19 +112,6 @@
             <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
             <sysproperty key="logFilename" value="test-log4j.log" />
         </junit>
-    </target>
-
-    <target name="astyle">
-        <fileset id="java-source-fileset" dir="${src.dir}" casesensitive="yes">
-            <include name="**/*.java" />
-        </fileset>
-        <pathconvert pathsep=" " refid="java-source-fileset" property="java-source-files" />
-        <exec executable="astyle">
-            <arg value="--mode=java"/>
-            <arg value="-xC80"/>
-            <arg value="-r"/>
-            <arg value="${java-source-files}"/>
-        </exec>
     </target>
 
 </project>
