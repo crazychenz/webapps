@@ -4,7 +4,7 @@
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="%highlight{#%sn %d{HH:mm:ss.SSS}[%level{length=1}][%t] %logger{1}: %msg%throwable%n}{ERROR=red, TRACE=magenta}"/>
     </Console>
-    <File name="File" filename="${sys:logFilename}">
+    <File name="File" filename="${sys:logFilename:-jar-log4j.log}">
       <PatternLayout pattern="#%sn %d{ISO8601}[%level][%pid:%t] %logger - %msg%n%throwable"/>
     </File>
   </Appenders>

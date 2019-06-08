@@ -8,7 +8,7 @@
     <property name="dist.dir" location="dist" />
     <property name="docs.dir" location="docs" />
     <property name="lib.dir" location="lib" />
-    <property name="enable_log4j" value="0" />
+    <property name="enable_log4j" value="1" />
 
     <path id="lib-classpath">
         <fileset dir="${lib.dir}">
@@ -23,6 +23,7 @@
         <delete dir="${dist.dir}" />
         <delete file="test-log4j.log" />
         <delete file="run-log4j.log" />
+        <delete file="jar-log4j.log" />
     </target>
 
     <!-- Creates the  build, docs and dist directory-->
@@ -60,7 +61,12 @@
 
     <!-- Creates Javadoc -->
     <target name="docs" depends="compile">
-        <javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">
+        <javadoc packagenames="src"
+                 sourcepath="${src.dir}"
+                 destdir="${docs.dir}"
+                 overview="overview.html"
+                 linksource="yes"
+                 includenosourcepackages="true">
             <classpath refid="lib-classpath" />
             <!-- Define which files / directory should get included, we include all -->
              <fileset dir="${src.dir}">

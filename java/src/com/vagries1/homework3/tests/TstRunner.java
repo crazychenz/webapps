@@ -1,3 +1,9 @@
+/* Copyright © 2019
+ * Vincent Agriesti
+ * All rights reserved.
+ *
+ */
+
 package com.vagries1.homework3.tests;
 
 import org.junit.runner.RunWith;
