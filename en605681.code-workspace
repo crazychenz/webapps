@@ -1,11 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "."
-		},
-		{
-			"path": "W:\\"
+			"path": "java"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"java.home": "D:\\Java\\jdk-8.0.212.03-hotspot"
+	}
 }

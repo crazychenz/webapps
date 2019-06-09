@@ -6,7 +6,7 @@
 
 package com.vagries1.homework3;
 
-import static java.lang.Math.abs;
+// import static java.lang.Math.abs;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -81,7 +81,7 @@ public class Main {
             int arg2 = Integer.parseInt(args[1]);
             int result = obj.product(arg1, arg2);
             if (result < 0) {
-                System.out.printf("(%d)\n", abs(result));
+                System.out.printf("(%d)\n", Math.abs(result));
             } else {
                 System.out.printf("%d\n", result);
             }
