@@ -56,10 +56,17 @@ public class Main {
             ships.add(ship);
         }
 
-        // 7. Make a collection that hols all Contacts
+        // 7. Make a collection that holds all Contacts
         contacts = new ArrayList<Contact>();
         for (Contact contact : ships) {
             contacts.add(contact);
+        }
+        for (Contact contact : p3s) {
+            contacts.add(contact);
+        }
+
+        for (Contact contact : contacts) {
+            System.out.println(contact);
         }
     }
 

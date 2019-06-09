@@ -89,8 +89,21 @@
         <description>Main target</description>
     </target>
 
-    <target name="run" depends="jar">
+    <target name="hw3" depends="jar">
         <java fork="true" classname="com.vagries1.homework3.Main">
+            <env key="ENABLE_LOGGING" value="${enable_log4j}"/>
+            <classpath>
+                <pathelement location="dist/en605681.jar" />
+            </classpath>
+            <arg value="3" />
+            <arg value="6" />
+            <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
+            <sysproperty key="logFilename" value="run-log4j.log" />
+        </java>
+    </target>
+
+    <target name="hw4" depends="jar">
+        <java fork="true" classname="com.vagries1.homework4.Main">
             <env key="ENABLE_LOGGING" value="${enable_log4j}"/>
             <classpath>
                 <pathelement location="dist/en605681.jar" />
