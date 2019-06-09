@@ -1,13 +1,13 @@
 package com.vagries1.homework4;
 
-public abstract class P3 extends Aircraft {
-    int numberEngines;
+public class P3 extends Aircraft {
+    private int numberEngines;
 
-    int getNumberEngines() {
+    public int getNumberEngines() {
         return numberEngines;
     }
 
-    void setNumberEngines(int engines) {
+    public void setNumberEngines(int engines) {
         this.numberEngines = engines;
     }
 }

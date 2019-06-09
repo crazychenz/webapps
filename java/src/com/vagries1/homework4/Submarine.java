@@ -3,11 +3,15 @@ package com.vagries1.homework4;
 public class Submarine extends Ship {
     private int numberTorpedos;
 
-    int getNumberTorpedos() {
+    public int getNumberTorpedos() {
         return numberTorpedos;
     }
 
-    void setNumberTorpedos(int torpedos) {
+    public void setNumberTorpedos(int torpedos) {
         this.numberTorpedos = torpedos;
+    }
+
+    public void setNumberTorpedos(String torpedos) {
+        this.numberTorpedos = Integer.parseInt(torpedos);
     }
 }

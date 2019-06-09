@@ -6,22 +6,16 @@
 
 package com.vagries1.homework3;
 
-// import static java.lang.Math.abs;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
-/**
- * Main entry point for homework3.
- *
- * @author Vincent Agriesti
- */
+/** Main entry point for homework3. */
 public class Main {
 
     /** Log4j logger object instance for this class. */
-    private static final Logger LOGGER = LogManager.getLogger(Main.class);
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**
      * Calculate the product of two integers.
@@ -33,10 +27,10 @@ public class Main {
     public int product(int leftOperand, int rightOperand) {
         int result = 0;
 
-        LOGGER.printf(Level.DEBUG, "Calculated %d * %d is ", leftOperand, rightOperand);
+        logger.printf(Level.DEBUG, "Calculated %d * %d is ", leftOperand, rightOperand);
         // We use multiplyExact to catch potential overflows. (This requires JRE >= 1.8)
         result = Math.multiplyExact(leftOperand, rightOperand);
-        LOGGER.printf(Level.DEBUG, "%d\n", result);
+        logger.printf(Level.DEBUG, "%d\n", result);
 
         return result;
     }
@@ -73,7 +67,7 @@ public class Main {
             Configurator.setRootLevel(Level.OFF);
         }
 
-        LOGGER.info("Starting main entry point.");
+        logger.info("Starting main entry point.");
 
         Main obj = new Main();
         try {

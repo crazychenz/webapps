@@ -4,7 +4,7 @@
  *
  */
 
-package com.vagries1.homework3.tests;
+package com.vagries1.homework4.tests;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -13,7 +13,14 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({MainTest.class})
+@SuiteClasses({
+    AircraftTest.class,
+    DestroyerTest.class,
+    MainTest.class,
+    P3Test.class,
+    ShipTest.class,
+    SubmarineTest.class
+})
 public class TstRunner {
     static {
         // Boilerplate logger enable/disable code.

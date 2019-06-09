@@ -8,7 +8,7 @@
     <property name="dist.dir" location="dist" />
     <property name="docs.dir" location="docs" />
     <property name="lib.dir" location="lib" />
-    <property name="enable_log4j" value="1" />
+    <property name="enable_log4j" value="0" />
 
     <path id="lib-classpath">
         <fileset dir="${lib.dir}">
@@ -110,9 +110,11 @@
                 <path refid="lib-classpath" />
             </classpath>
             <formatter type="brief" usefile="false" />
+
             <batchtest>
                 <fileset dir="${src.tests}">
-                    <include name="**/*Test*.java" />
+                    <!--include name="**/*Test*.java" /-->
+                    <include name="**/TstRunner.java" />
                 </fileset>
             </batchtest>
             <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
