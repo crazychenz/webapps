@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+/** Class that facilitates JUnit tests for package. */
 @RunWith(Suite.class)
 @SuiteClasses({
     AircraftTest.class,

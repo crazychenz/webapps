@@ -6,11 +6,16 @@
 
 package com.vagries1.homework4;
 
+/** A ship that has length, speed, name, and type. */
 public abstract class Ship implements Contact {
 
+    /** Length of the Ship from end to end in meters. */
     private int length;
+    /** Speed of the Ship in meters per second. */
     private int speed;
+    /** Name of the Ship. */
     private String name;
+    /** Type of the Ship. */
     private String type;
 
     /**
@@ -86,7 +91,7 @@ public abstract class Ship implements Contact {
      * @param speed is the Speed of the ship in meters per second. Values must be between MAX_SPEED
      *     and MIN_SPEED.
      */
-    public void setSpeed(int speed) throws ArrayIndexOutOfBoundsException {
+    public void setSpeed(int speed) {
         if (speed < MIN_SPEED) {
             throw new ArrayIndexOutOfBoundsException("speed negative");
         }
@@ -103,7 +108,7 @@ public abstract class Ship implements Contact {
      *     must be between MAX_SPEED and MIN_SPEED. The String must provides the speed as an integer
      *     expressed in decimal with arabic numerals.
      */
-    public void setSpeed(String speedStr) throws ArrayIndexOutOfBoundsException {
+    public void setSpeed(String speedStr) {
         int speed = Integer.parseInt(speedStr);
         setSpeed(speed);
     }
@@ -141,9 +146,9 @@ public abstract class Ship implements Contact {
      */
     public void setType(String type) throws IllegalArgumentException {
         if (type == null) {
-            throw new IllegalArgumentException("name is null");
+            throw new IllegalArgumentException("type is null");
         } else if (type.length() < 1) {
-            throw new IllegalArgumentException("name is empty");
+            throw new IllegalArgumentException("type is empty");
         }
         this.type = type;
     }

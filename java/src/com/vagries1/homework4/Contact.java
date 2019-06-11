@@ -6,6 +6,7 @@
 
 package com.vagries1.homework4;
 
+/** An interface for Aircraft and Ships and all subclasses therein. */
 public interface Contact {
 
     /**
@@ -18,14 +19,16 @@ public interface Contact {
     /**
      * Set the length attribute (in meters).
      *
-     * <p>Note: The value must be zero or positive. (I would have just made this an unsigned
-     * attribute, but alas the assignment told me to use an int. Meh.)
-     *
-     * @param length
+     * @param length The value must be zero or positive. (I would have just made this an unsigned
+     *     attribute, but alas the requirements specified to use an int. Meh.)
      */
     public void setLength(int length);
 
-    /** Get the speed of object (in meters per second). */
+    /**
+     * Get the speed of object (in meters per second).
+     *
+     * @return Speed in meters per second as int.
+     */
     public int getSpeed();
 
     /**

@@ -35,6 +35,40 @@ public class Main {
         return result;
     }
 
+    /**
+     * Convert a product value from an signed int primitive to a String where negative values are
+     * surrounded with parenthesises instead of having a minus sign. Positives are left normal. Both
+     * are represented with arabic numerals in radix 10.
+     *
+     * @param value The value to convert from int to String.
+     * @return The value as a String.
+     */
+    public String intToString(int value) {
+        String ret;
+        if (value < 0) {
+            ret = String.format("(%d)", Math.abs(value));
+        } else {
+            ret = String.format("%d", Math.abs(value));
+        }
+        return ret;
+    }
+
+    /**
+     * Takes two arguments, finds their product, and converts the result to a formatted String.
+     *
+     * @param args An array of arguments. Only the first two are used for the product.
+     * @return The string representation of the product of the first two arguments in args.
+     */
+    public static String productStringFromArgv(String[] args) {
+        String ret;
+        Main obj = new Main();
+        int arg1 = Integer.parseInt(args[0]);
+        int arg2 = Integer.parseInt(args[1]);
+        int result = obj.product(arg1, arg2);
+        ret = obj.intToString(result);
+        return ret;
+    }
+
     /** Prints to STDOUT the brief usage documentation from CLI. */
     public static void usage() {
         System.out.printf("Usage: Main <leftOperand> <rightOperand>\n\n");
@@ -69,16 +103,8 @@ public class Main {
 
         logger.info("Starting main entry point.");
 
-        Main obj = new Main();
         try {
-            int arg1 = Integer.parseInt(args[0]);
-            int arg2 = Integer.parseInt(args[1]);
-            int result = obj.product(arg1, arg2);
-            if (result < 0) {
-                System.out.printf("(%d)\n", Math.abs(result));
-            } else {
-                System.out.printf("%d\n", result);
-            }
+            System.out.println(Main.productStringFromArgv(args));
         } catch (NumberFormatException e) {
             System.err.printf("Error: Invalid number format. (%s)\n\n", e.getMessage());
             Main.usage();

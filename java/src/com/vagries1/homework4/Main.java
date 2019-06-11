@@ -23,6 +23,7 @@ public class Main {
         System.out.printf("Usage: Main\n\n");
     }
 
+    /** Main action of this application to satisfy the requirements of Homework #4. */
     public void doStuff() {
         ArrayList<Destroyer> destroyers;
         ArrayList<Submarine> submarines;
@@ -41,6 +42,17 @@ public class Main {
         submarines = new ArrayList<Submarine>();
         submarines.add(new Submarine());
         submarines.add(new Submarine());
+
+        // Also, in your test class, you should exercise your execption
+        // handling case for the submarine by setting the number of
+        // torpedoes in one of your submarine classes to the string "Foo".
+        System.out.println("Attempting to set Submarine.numberTorpedos to \"Foo\".");
+        try {
+            Submarine foo = new Submarine();
+            foo.setNumberTorpedos("Foo");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
 
         // 3. Create 2 P3s
         p3s = new ArrayList<P3>();
@@ -65,8 +77,9 @@ public class Main {
             contacts.add(contact);
         }
 
-        for (Contact contact : contacts) {
-            System.out.println(contact);
+        System.out.println("\nAll contacts' toString() output:");
+        for (int i = 0; i < contacts.size(); ++i) {
+            System.out.println((i + 1) + ". " + contacts.get(i).toString());
         }
     }
 
@@ -89,6 +102,10 @@ public class Main {
 
         logger.info("Starting main entry point.");
 
-        new Main().doStuff();
+        try {
+            new Main().doStuff();
+        } catch (Exception e) {
+            System.out.println("Error: You did something wrong. Maybe read the javadocs? ;).");
+        }
     }
 }

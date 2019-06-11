@@ -16,6 +16,8 @@
         </fileset>
     </path>
 
+
+
     <!-- Deletes the existing build, docs and dist directory-->
     <target name="clean">
         <delete dir="${build.dir}" />
@@ -98,7 +100,7 @@
             <arg value="3" />
             <arg value="6" />
             <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
-            <sysproperty key="logFilename" value="run-log4j.log" />
+            <sysproperty key="logFilename" value="hw3-log4j.log" />
         </java>
     </target>
 
@@ -108,10 +110,8 @@
             <classpath>
                 <pathelement location="dist/en605681.jar" />
             </classpath>
-            <arg value="3" />
-            <arg value="6" />
             <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
-            <sysproperty key="logFilename" value="run-log4j.log" />
+            <sysproperty key="logFilename" value="hw4-log4j.log" />
         </java>
     </target>
 
