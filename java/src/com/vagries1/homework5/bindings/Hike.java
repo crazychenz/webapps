@@ -4,7 +4,7 @@
  *
  */
 
-package com.vagries1.homework5;
+package com.vagries1.homework5.bindings;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,12 +19,13 @@ import org.apache.logging.log4j.Logger;
 public class Hike implements Serializable {
 
     /** Log4j logger object instance for this class. */
-    private static final Logger logger = LogManager.getLogger(BhcRates.class);
+    private static final Logger logger = LogManager.getLogger(Hike.class);
 
     private static final long serialVersionUID = 1L;
 
     String name;
-    int baseRate;
+    String key;
+    float baseRate;
     float premiumMultiplier;
     List<Integer> duration;
 
@@ -32,7 +33,11 @@ public class Hike implements Serializable {
         return name;
     }
 
-    public int getBaseRate() {
+    public String getKey() {
+        return key;
+    }
+
+    public float getBaseRate() {
         return baseRate;
     }
 
@@ -53,10 +58,16 @@ public class Hike implements Serializable {
         super();
     }
 
-    public Hike(String name, int baseRate, float premiumMultiplier, List<Integer> duration) {
+    public Hike(
+            String name,
+            String key,
+            int baseRate,
+            float premiumMultiplier,
+            List<Integer> duration) {
         super();
 
         this.name = name;
+        this.key = key;
         this.baseRate = baseRate;
         this.premiumMultiplier = premiumMultiplier;
         this.duration = duration;

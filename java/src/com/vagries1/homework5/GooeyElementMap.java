@@ -11,6 +11,7 @@
 package com.vagries1.homework5;
 
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class GooeyElementMap {
 
@@ -27,10 +28,18 @@ public class GooeyElementMap {
     }
 
     public <T> T getAs(String key, Class<T> type) {
-        return map.get(key).get(type);
+        try {
+            return map.get(key).get(type);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Object get(String key) {
         return map.get(key).getValue();
+    }
+
+    public Set<String> keySet() {
+        return map.keySet();
     }
 }

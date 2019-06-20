@@ -4,7 +4,7 @@
  *
  */
 
-package com.vagries1.homework5;
+package com.vagries1.homework5.bindings;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 public class AppointmentRange implements Serializable {
 
     /** Log4j logger object instance for this class. */
-    private static final Logger logger = LogManager.getLogger(BhcRates.class);
+    private static final Logger logger = LogManager.getLogger(AppointmentRange.class);
 
     private static final long serialVersionUID = 1L;
 

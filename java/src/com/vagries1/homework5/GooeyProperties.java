@@ -10,6 +10,7 @@ import java.awt.GridBagConstraints;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -51,6 +52,11 @@ public class GooeyProperties extends Properties {
     public JTextField asJTextField(String prefix) {
         JTextField field = new JTextField(asInt(prefix + "_SIZE"));
         return field;
+    }
+
+    public JButton asJButton(String prefix) {
+        JButton button = new JButton(asStr(prefix + "_LABEL"));
+        return button;
     }
 
     public GridBagConstraints asGridBagConstraints(String prefix) {

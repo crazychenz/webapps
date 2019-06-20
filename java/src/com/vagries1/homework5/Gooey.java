@@ -6,6 +6,10 @@
 
 package com.vagries1.homework5;
 
+import com.rbevans.bookingrate.BookingDay;
+import com.rbevans.bookingrate.Rates;
+import com.vagries1.homework5.bindings.BhcConfig;
+import com.vagries1.homework5.bindings.Hike;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -14,7 +18,10 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Vector;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,30 +39,20 @@ public class Gooey implements ActionListener {
     /** Log4j logger object instance for this class. */
     private static final Logger logger = LogManager.getLogger(Main.class);
 
+    GooeyElementMap elements;
+    GooeyProperties properties;
+    BhcConfig config;
+
     @SuppressWarnings("unchecked")
     final Class<JComboBox<String>> JComboBoxStringType =
             (Class<JComboBox<String>>) (Object) JComboBox.class;
 
-    // LinkedHashMap<String, GooeyElement> elements;
-    GooeyElementMap elements;
-
-    /*JLabel hikeLabel;
-    JComboBox<String> hikeField;
-    JLabel dateLabel;
-    JComboBox<String> monthField;
-    JComboBox<String> dateField;
-    JComboBox<String> yearField;
-    JLabel durationLabel;
-    JComboBox<String> durationField;
-    */
-    JButton calculateButton;
-    // JLabel estimateLabel;
-    JTextField estimateField;
-    BhcConfig config;
     Vector<String> validDurations;
     Vector<String> validDates;
 
-    public Gooey() {
+    public Gooey(BhcConfig config) {
+        this.config = config;
+        properties = new GooeyProperties();
         elements = new GooeyElementMap();
     }
 
@@ -94,7 +91,6 @@ public class Gooey implements ActionListener {
     }
 
     public void updateDates() {
-
         JComboBox<String> dateField = elements.getAs("DATE_FIELD", JComboBoxStringType);
         JComboBox<String> monthField = elements.getAs("MONTH_FIELD", JComboBoxStringType);
         JComboBox<String> yearField = elements.getAs("YEAR_FIELD", JComboBoxStringType);
@@ -106,25 +102,67 @@ public class Gooey implements ActionListener {
         for (int i = 1; i < getMaxDate(month, year) + 1; ++i) {
             validDates.add(Integer.toString(i));
         }
-        System.out.println("validDates.size() " + validDates.size());
-        System.out.println("date " + date);
+        // System.out.println("validDates.size() " + validDates.size());
+        // System.out.println("date " + date);
         if (validDates.size() <= date) {
-            System.out.println("Unselecting date.");
+            // System.out.println("Unselecting date.");
             dateField.setSelectedItem(null);
         }
     }
 
+    int monthFromName(String name) {
+        Calendar cal = Calendar.getInstance();
+        for (int i = Calendar.JANUARY; i <= Calendar.DECEMBER; ++i) {
+            String month;
+            cal.set(1, i, 1);
+            month = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.ENGLISH);
+            if (month.equals(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void updateEstimate() {
-        JComboBox<String> hikeField = elements.getAs("HIKE_FIELD", JComboBoxStringType);
+        JTextField estimateField;
+        JComboBox<String> hikeField;
+        JComboBox<String> durationField;
+        JComboBox<String> dateField;
+        JComboBox<String> monthField;
+        JComboBox<String> yearField;
+
+        hikeField = elements.getAs("HIKE_FIELD", JComboBoxStringType);
+        dateField = elements.getAs("DATE_FIELD", JComboBoxStringType);
+        monthField = elements.getAs("MONTH_FIELD", JComboBoxStringType);
+        yearField = elements.getAs("YEAR_FIELD", JComboBoxStringType);
+        durationField = elements.getAs("DURATION_FIELD", JComboBoxStringType);
+        estimateField = elements.getAs("ESTIMATE_FIELD", JTextField.class);
+
+        String durationStr = (String) durationField.getSelectedItem();
+        int duration = Integer.parseInt(durationStr);
+        int year = Integer.parseInt((String) yearField.getSelectedItem());
+        int month = monthFromName((String) monthField.getSelectedItem()) + 1;
+        int date = dateField.getSelectedIndex() + 1;
 
         int hikeIdx = hikeField.getSelectedIndex();
-        Hike hike = config.hikes.get(hikeIdx);
-        float cost = hike.getBaseRate() * hike.getPremiumMultiplier();
-        estimateField.setText(Float.toString(cost));
+        Hike hike = config.getHikes().get(hikeIdx);
+
+        BookingDay startDay = new BookingDay(year, month, date);
+        Rates rates = new Rates(Rates.HIKE.valueOf(hike.getKey()));
+        rates.setBeginDate(startDay);
+        boolean success = rates.setDuration(duration);
+        estimateField.setText(Double.toString(rates.getCost()));
+        System.out.println(rates.getDetails());
     }
 
     public void actionPerformed(ActionEvent evt) {
         Object obj = evt.getSource();
+
+        JTextField estimateField;
+        JButton calculateButton;
+
+        estimateField = elements.getAs("ESTIMATE_FIELD", JTextField.class);
+        calculateButton = elements.getAs("CALCULATE_BUTTON", JButton.class);
 
         if (estimateField != null) {
             // Clear estimate on any change.
@@ -144,24 +182,26 @@ public class Gooey implements ActionListener {
         }
     }
 
-    public static void bumpFont(Container container, int size) {
-        container.setFont(new Font(container.getName(), Font.PLAIN, size));
+    public JComboBox<String> loadComboBox(
+            String key, GooeyElementMap elements, Vector<String> items) {
+
+        JComboBox<String> comboBox;
+        ComboBoxModel<String> model;
+
+        model = new DefaultComboBoxModel<String>(items);
+        comboBox = new JComboBox<String>(model);
+        elements.putAs(key, JComboBoxStringType, comboBox);
+        comboBox.addActionListener(this);
+
+        return comboBox;
     }
 
-    public JPanel createFormPanel(BhcConfig config, boolean highRes) {
-
-        GooeyProperties p = new GooeyProperties();
-
-        // Creating an alias for easier reading.
+    public JPanel createFormPanel(boolean highRes) {
+        // Creating some aliases for easier reading.
         GooeyElementMap e = elements;
+        GooeyProperties p = properties;
 
-        // TODO: Do this somewhere else.
-        this.config = config;
         JPanel panel = new JPanel(new GridBagLayout());
-
-        // Generic reference holders
-        GridBagConstraints constraints;
-        JComboBox<String> comboBox;
 
         // Create valid hikes from bhcConfig.xml
         Vector<String> validHikes = new Vector<String>();
@@ -169,9 +209,15 @@ public class Gooey implements ActionListener {
             validHikes.add(hike.getName());
         }
 
-        String validMonths[] = {
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-        };
+        // Generate month vector from Calendar object
+        Vector<String> validMonths = new Vector<String>();
+        Calendar cal = Calendar.getInstance();
+        for (int i = Calendar.JUNE; i < Calendar.OCTOBER; ++i) {
+            String month;
+            cal.set(1, i, 1);
+            month = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.ENGLISH);
+            validMonths.add(month);
+        }
 
         // Create valid years from bhcConfig.xml
         Vector<String> validYears = new Vector<String>();
@@ -182,96 +228,54 @@ public class Gooey implements ActionListener {
         }
 
         e.putAs("HIKE_LABEL", JLabel.class, p.asJLabel("HIKE_LABEL"));
-
-        comboBox = new JComboBox<String>(validHikes);
-        e.putAs("HIKE_FIELD", JComboBoxStringType, comboBox);
-        comboBox.addActionListener(this);
+        loadComboBox("HIKE_FIELD", elements, validHikes);
 
         e.putAs("DATE_LABEL", JLabel.class, p.asJLabel("DATE_LABEL"));
+        loadComboBox("MONTH_FIELD", elements, validMonths);
+        loadComboBox("YEAR_FIELD", elements, validYears);
 
-        comboBox = new JComboBox<String>(validMonths);
-        e.putAs("MONTH_FIELD", JComboBoxStringType, comboBox);
-        comboBox.addActionListener(this);
-
-        comboBox = new JComboBox<String>(validYears);
-        e.putAs("YEAR_FIELD", JComboBoxStringType, comboBox);
-        comboBox.addActionListener(this);
-
+        JComboBox<String> comboBox;
         validDates = new Vector<String>();
-        comboBox = new JComboBox<String>(validDates);
-        e.putAs("DATE_FIELD", JComboBoxStringType, comboBox);
-        comboBox.addActionListener(this);
-        comboBox.setModel(new DefaultComboBoxModel<String>(validDates));
+        comboBox = loadComboBox("DATE_FIELD", elements, validDates);
         updateDates();
         comboBox.setSelectedIndex(0);
 
         e.putAs("DURATION_LABEL", JLabel.class, p.asJLabel("DURATION_LABEL"));
-
         validDurations = new Vector<String>();
-        comboBox = new JComboBox<String>(validDurations);
-        comboBox.addActionListener(this);
-        DefaultComboBoxModel<String> model;
-        model = new DefaultComboBoxModel<String>(validDurations);
-        comboBox.setModel(model);
+        loadComboBox("DURATION_FIELD", elements, validDurations);
         updateDurations();
-        e.putAs("DURATION_FIELD", JComboBoxStringType, comboBox);
 
-        calculateButton = new JButton(p.asStr("CALCULATE_BUTTON_LABEL"));
+        JButton calculateButton;
+        calculateButton = p.asJButton("CALCULATE_BUTTON");
+        e.putAs("CALCULATE_BUTTON", JButton.class, calculateButton);
         calculateButton.addActionListener(this);
 
         e.putAs("ESTIMATE_LABEL", JLabel.class, p.asJLabel("ESTIMATE_LABEL"));
 
-        // estimateLabel = new JLabel(p.asStr("ESTIMATE_LABEL"), JLabel.RIGHT);
-        estimateField = new JTextField(p.asInt("ESTIMATE_FIELD_SIZE"));
+        JTextField estimateField;
+        estimateField = p.asJTextField("ESTIMATE_FIELD");
         estimateField.setEditable(false);
+        e.putAs("ESTIMATE_FIELD", JTextField.class, estimateField);
 
         if (highRes) {
-            final int HIGH_RES_FONT_SIZE = 42;
-            Gooey.bumpFont(e.getAs("HIKE_LABEL", JComponent.class), HIGH_RES_FONT_SIZE);
-            Gooey.bumpFont(e.getAs("HIKE_FIELD", JComponent.class), HIGH_RES_FONT_SIZE);
-            Gooey.bumpFont(e.getAs("MONTH_FIELD", JComponent.class), HIGH_RES_FONT_SIZE);
-            Gooey.bumpFont(e.getAs("DATE_LABEL", JComponent.class), HIGH_RES_FONT_SIZE);
-            Gooey.bumpFont(e.getAs("DATE_FIELD", JComponent.class), HIGH_RES_FONT_SIZE);
-            Gooey.bumpFont(e.getAs("YEAR_FIELD", JComponent.class), HIGH_RES_FONT_SIZE);
-            Gooey.bumpFont(e.getAs("DURATION_LABEL", JComponent.class), HIGH_RES_FONT_SIZE);
-            Gooey.bumpFont(e.getAs("DURATION_FIELD", JComponent.class), HIGH_RES_FONT_SIZE);
-            calculateButton.setFont(
-                    new Font(calculateButton.getName(), Font.PLAIN, HIGH_RES_FONT_SIZE));
-            Gooey.bumpFont(e.getAs("ESTIMATE_LABEL", JComponent.class), HIGH_RES_FONT_SIZE);
-            estimateField.setFont(
-                    new Font(estimateField.getName(), Font.PLAIN, HIGH_RES_FONT_SIZE));
+            int FONT_SIZE = p.asInt("HIGH_RES_FONT_SIZE");
+            for (String key : e.keySet()) {
+                Container container = e.getAs(key, JComponent.class);
+                container.setFont(new Font(container.getName(), Font.PLAIN, FONT_SIZE));
+            }
         }
 
-        // Labels (and Button)
-        constraints = p.asGridBagConstraints("HIKE_LABEL");
-        panel.add(e.getAs("HIKE_LABEL", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("DATE_LABEL");
-        panel.add(e.getAs("DATE_LABEL", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("DURATION_LABEL");
-        panel.add(e.getAs("DURATION_LABEL", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("ESTIMATE_LABEL");
-        panel.add(e.getAs("ESTIMATE_LABEL", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("CALCULATE_BUTTON");
-        panel.add(calculateButton, constraints);
-
-        // Fields
-        constraints = p.asGridBagConstraints("HIKE_FIELD");
-        panel.add(e.getAs("HIKE_FIELD", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("MONTH_FIELD");
-        panel.add(e.getAs("MONTH_FIELD", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("DATE_FIELD");
-        panel.add(e.getAs("DATE_FIELD", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("YEAR_FIELD");
-        panel.add(e.getAs("YEAR_FIELD", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("DURATION_FIELD");
-        panel.add(e.getAs("DURATION_FIELD", JComponent.class), constraints);
-        constraints = p.asGridBagConstraints("ESTIMATE_FIELD");
-        panel.add(estimateField, constraints);
+        // Add all the GUI elements to panel.
+        for (String key : e.keySet()) {
+            GridBagConstraints constraints;
+            constraints = p.asGridBagConstraints(key);
+            panel.add(e.getAs(key, JComponent.class), constraints);
+        }
 
         return panel;
     }
 
-    public JFrame createFrame(BhcConfig config) {
+    public JFrame createFrame() {
         JFrame frame = new JFrame("BHC Hike Calculator");
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -280,19 +284,16 @@ public class Gooey implements ActionListener {
             isHighRes = true;
         }
 
-        frame.add(createFormPanel(config, isHighRes));
+        frame.add(createFormPanel(isHighRes));
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationByPlatform(true);
-
-        // Display the window.
-        frame.setSize(3000, 3000);
 
         return frame;
     }
 
     public static void deferredGui(BhcConfig config) {
-        JFrame frame = new Gooey().createFrame(config);
+        JFrame frame = new Gooey(config).createFrame();
         Runnable runFrame =
                 new Runnable() {
                     public void run() {

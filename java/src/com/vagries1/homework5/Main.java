@@ -10,6 +10,9 @@ import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+
+import com.vagries1.homework5.bindings.BhcConfig;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,11 +66,6 @@ public class Main {
         try {
             BhcConfig config;
             config = Main.unmarshallConfig(new File("bhcConfig.xml"));
-
-            // System.out.println(config.getName());
-            // System.out.println(config.getAppointmentRange().getMinYear());
-            // System.out.println(config.getHikes().get(1).getPremiumMultiplier());
-
             Gooey.deferredGui(config);
         } catch (Exception e) {
             e.printStackTrace();

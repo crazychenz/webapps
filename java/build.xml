@@ -115,6 +115,17 @@
         </java>
     </target>
 
+    <target name="hw5" depends="jar">
+        <java fork="true" classname="com.vagries1.homework5.Main">
+            <env key="ENABLE_LOGGING" value="${enable_log4j}"/>
+            <classpath>
+                <pathelement location="dist/en605681.jar" />
+            </classpath>
+            <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
+            <sysproperty key="logFilename" value="hw5-log4j.log" />
+        </java>
+    </target>
+
     <target name="test" depends="jar">
         <junit printsummary="on" haltonfailure="yes" fork="true">
             <env key="ENABLE_LOGGING" value="${enable_log4j}" />
