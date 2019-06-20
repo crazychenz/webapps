@@ -6,13 +6,11 @@
 
 package com.vagries1.homework5;
 
+import com.vagries1.homework5.bindings.BhcConfig;
 import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-
-import com.vagries1.homework5.bindings.BhcConfig;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
