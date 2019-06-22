@@ -17,6 +17,7 @@ import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.Vector;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -91,7 +92,8 @@ public class Gooey implements ActionListener {
         estimator.estimate();
 
         if (estimator.getEstimate() > 0) {
-            estimateField.setText(Double.toString(estimator.getEstimate()));
+            DecimalFormat df = new DecimalFormat("#.00");
+            estimateField.setText("$" + df.format(estimator.getEstimate()));
         }
         String msg = estimator.getEstimateInfo();
         if (msg == "begin or end date was out of season") {
@@ -340,6 +342,7 @@ public class Gooey implements ActionListener {
             frame.add(createFormPanel());
 
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setResizable(false);
             frame.setLocationByPlatform(true);
         } catch (HeadlessException e) {
             System.out.println("No GUI framework found to load window.");
