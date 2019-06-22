@@ -117,7 +117,7 @@ public class Gooey implements ActionListener {
         JComboBox<String> hikeField;
         hikeField = elements.getAs("HIKE_FIELD", JComboBoxStringType);
         try {
-            estimator.setHike(hikeField.getSelectedIndex());
+            estimator.setHikeIdx(hikeField.getSelectedIndex());
         } catch (Exception e) {
             // Note: Unlikely this will ever happen.
             String msg = "Detected invalid hike entry. Resetting field.";
@@ -139,7 +139,7 @@ public class Gooey implements ActionListener {
         JComboBox<String> monthField;
         monthField = elements.getAs("MONTH_FIELD", JComboBoxStringType);
         try {
-            estimator.setMonth(monthField.getSelectedIndex());
+            estimator.setMonthIdx(monthField.getSelectedIndex());
         } catch (Exception e) {
             // Note: Unlikely this will ever happen.
             String msg = "Detected invalid month entry. Resetting field.";
@@ -160,7 +160,7 @@ public class Gooey implements ActionListener {
         JComboBox<String> yearField;
         yearField = elements.getAs("YEAR_FIELD", JComboBoxStringType);
         try {
-            estimator.setYear(yearField.getSelectedIndex());
+            estimator.setYearIdx(yearField.getSelectedIndex());
         } catch (Exception e) {
             // Note: Unlikely this will ever happen.
             String msg = "Detected invalid year entry. Resetting field.";
@@ -180,7 +180,7 @@ public class Gooey implements ActionListener {
         JComboBox<String> dateField;
         dateField = elements.getAs("DATE_FIELD", JComboBoxStringType);
         try {
-            estimator.setDate(dateField.getSelectedIndex());
+            estimator.setDateIdx(dateField.getSelectedIndex());
         } catch (Exception e) {
             // Note: Unlikely this will ever happen.
             String msg = "Detected invalid date entry. Resetting field.";
@@ -195,7 +195,7 @@ public class Gooey implements ActionListener {
         JComboBox<String> durationField;
         durationField = elements.getAs("DURATION_FIELD", JComboBoxStringType);
         try {
-            estimator.setDuration(durationField.getSelectedIndex());
+            estimator.setDurationIdx(durationField.getSelectedIndex());
         } catch (Exception e) {
             // Note: Unlikely this will ever happen.
             String msg = "Detected invalid duration entry. Resetting field.";

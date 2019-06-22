@@ -25,8 +25,8 @@ public class Hike implements Serializable {
 
     String name;
     String key;
-    float baseRate;
-    float premiumMultiplier;
+    double baseRate;
+    double premiumMultiplier;
     List<Integer> duration;
 
     public String getName() {
@@ -37,11 +37,11 @@ public class Hike implements Serializable {
         return key;
     }
 
-    public float getBaseRate() {
+    public double getBaseRate() {
         return baseRate;
     }
 
-    public float getPremiumMultiplier() {
+    public double getPremiumMultiplier() {
         return premiumMultiplier;
     }
 
@@ -61,8 +61,8 @@ public class Hike implements Serializable {
     public Hike(
             String name,
             String key,
-            int baseRate,
-            float premiumMultiplier,
+            double baseRate,
+            double premiumMultiplier,
             List<Integer> duration) {
         super();
 

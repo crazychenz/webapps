@@ -168,12 +168,12 @@ public class BhcEstimator {
      * Sets the duration index value.
      *
      * @param index The index value to set duration to.
-     * @throws Exception When the duration index is invalid.
+     * @throws IllegalArgumentException When the duration index is invalid.
      */
-    public void setDuration(int index) throws Exception {
-        if (index >= getValidDurations().size()) {
+    public void setDurationIdx(int index) throws IllegalArgumentException {
+        if (index < 0 || index >= getValidDurations().size()) {
             resetDuration();
-            throw new Exception("bad duration");
+            throw new IllegalArgumentException("bad duration");
         }
         this.durationIdx = index;
     }
@@ -263,12 +263,12 @@ public class BhcEstimator {
      * Sets the date index value.
      *
      * @param index The index value to set date to.
-     * @throws Exception When the date index is invalid.
+     * @throws IllegalArgumentException When the date index is invalid.
      */
-    public void setDate(int index) throws Exception {
-        if (index >= getValidDates().size()) {
+    public void setDateIdx(int index) throws IllegalArgumentException {
+        if (index < 0 || index >= getValidDates().size()) {
             resetDate();
-            throw new Exception("bad date");
+            throw new IllegalArgumentException("bad date");
         }
         this.dateIdx = index;
     }
@@ -329,12 +329,12 @@ public class BhcEstimator {
      * Sets the month index value.
      *
      * @param index The index value to set month to.
-     * @throws Exception When the month index is invalid.
+     * @throws IllegalArgumentException When the month index is invalid.
      */
-    public void setMonth(int index) throws Exception {
-        if (index >= getValidMonths().size()) {
+    public void setMonthIdx(int index) throws IllegalArgumentException {
+        if (index < 0 || index >= getValidMonths().size()) {
             resetMonth();
-            throw new Exception("bad month");
+            throw new IllegalArgumentException("bad month");
         }
 
         monthIdx = index;
@@ -385,12 +385,12 @@ public class BhcEstimator {
      * Sets the year index value.
      *
      * @param index The index value to set year to.
-     * @throws Exception When the year index is invalid.
+     * @throws IllegalArgumentException When the year index is invalid.
      */
-    public void setYear(int index) throws Exception {
-        if (index >= getValidYears().size()) {
+    public void setYearIdx(int index) throws IllegalArgumentException {
+        if (index < 0 || index >= getValidYears().size()) {
             resetYear();
-            throw new Exception("bad year");
+            throw new IllegalArgumentException("bad year");
         }
         this.yearIdx = index;
 
@@ -432,12 +432,12 @@ public class BhcEstimator {
      * Sets the hike index value.
      *
      * @param index The index value to set hike to.
-     * @throws Exception When the year hike is invalid.
+     * @throws IllegalArgumentException When the year hike is invalid.
      */
-    public void setHike(int index) throws Exception {
-        if (index >= getValidHikes().size()) {
+    public void setHikeIdx(int index) throws IllegalArgumentException {
+        if (index < 0 || index >= getValidHikes().size()) {
             resetHike();
-            throw new Exception("bad hike");
+            throw new IllegalArgumentException("bad hike");
         }
 
         hike = hikeMap.get(getValidHikes().get(index));

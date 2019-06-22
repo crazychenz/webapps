@@ -16,8 +16,6 @@
         </fileset>
     </path>
 
-
-
     <!-- Deletes the existing build, docs and dist directory-->
     <target name="clean">
         <delete dir="${build.dir}" />
@@ -78,13 +76,15 @@
         </javadoc>
     </target>
 
-    <!--Creates the deployable jar file  -->
+    <!-- Creates the deployable jar file  -->
     <target name="jar" depends="compile">
         <jar manifest="manifest.mf" destfile="${dist.dir}\en605681.jar" basedir="${build.dir}">
             <fileset dir="." includes="log4j2.xml" />
             <zipfileset src="${lib.dir}\log4j-api-2.10.0.jar" includes="**/*" excludes="**/META-INF" />
             <zipfileset src="${lib.dir}\log4j-core-2.10.0.jar" includes="**/*" excludes="**/META-INF" />
-            <fileset dir="${src.dir}/com/vagries1/homework5/gooey" includes="**/*.properties" />
+            <!-- I don't like this but it works. -->
+            <fileset dir="${src.dir}" includes="**/*.properties" />
+            <fileset dir="${src.dir}" includes="**/*.xml" />
         </jar>
     </target>
 

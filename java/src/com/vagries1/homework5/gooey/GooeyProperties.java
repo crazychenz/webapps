@@ -29,6 +29,8 @@ public class GooeyProperties extends Properties {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String DEFAULT_PROP = "/com/vagries1/homework5/gooey/gooey.properties";
+
     /**
      * Default constructor.
      *
@@ -39,7 +41,7 @@ public class GooeyProperties extends Properties {
         super();
         try {
             InputStream in;
-            in = this.getClass().getResourceAsStream("/gooey.properties");
+            in = this.getClass().getResourceAsStream(DEFAULT_PROP);
             if (in == null) {
                 System.out.println("Couldn't find gooey.properties.");
                 System.exit(1);

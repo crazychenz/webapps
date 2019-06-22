@@ -9,9 +9,7 @@ package com.vagries1.homework5;
 import com.vagries1.homework5.bindings.BhcConfig;
 import com.vagries1.homework5.gooey.Gooey;
 import java.io.File;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import java.io.InputStream;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,32 +25,12 @@ public class Main {
     /** Log4j logger object instance for this class. */
     private static final Logger logger = LogManager.getLogger(Main.class);
 
+    private static final String DEFAULT_CONFIG =
+            "/com/vagries1/homework5/bindings/bhcConfigDefault.xml";
+
     /** Prints to STDOUT the brief usage documentation from CLI. */
     public static void usage() {
-        System.out.printf("Usage: Main\n\n");
-    }
-
-    /**
-     * This method binds the xmlFile to the objects in the com.vagries1.homework5.binding package.
-     * This is the loader for the BhcConfig that supplies the possible user options in the
-     * BhcEstimator object.
-     *
-     * @param xmlFile The XML file that contains to bhcConfig data.
-     * @return The BhcConfig object tree that represents bhcConfig data.
-     */
-    public static BhcConfig unmarshallConfig(File xmlFile) {
-        JAXBContext jaxbContext;
-        BhcConfig config = null;
-
-        try {
-            jaxbContext = JAXBContext.newInstance(BhcConfig.class);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            config = (BhcConfig) jaxbUnmarshaller.unmarshal(xmlFile);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-
-        return config;
+        System.out.printf("Usage: Main [--config path/to/bhcConfig.xml]\n\n");
     }
 
     /**
@@ -65,6 +43,8 @@ public class Main {
      */
     public static void main(String[] args) {
 
+        String configFile = null;
+
         // Boilerplate logger enable/disable code.
         if (!System.getenv().containsKey("ENABLE_LOGGING")) {
             Configurator.setRootLevel(Level.OFF);
@@ -74,12 +54,25 @@ public class Main {
 
         logger.info("Starting main entry point.");
 
+        // Check for user provided configuration
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("--config")) {
+                configFile = args[i + 1];
+                break;
+            }
+        }
+
         try {
             BhcConfig config;
             BhcEstimator estimator;
 
-            // TODO: Embed this in the jar.
-            config = Main.unmarshallConfig(new File("bhcConfig.xml"));
+            if (configFile != null) {
+                config = BhcConfig.unmarshallFile(new File(configFile));
+            } else {
+                InputStream in;
+                in = new Main().getClass().getResourceAsStream(DEFAULT_CONFIG);
+                config = BhcConfig.unmarshallStream(in);
+            }
 
             estimator = new BhcEstimator(config);
             Gooey.deferredGui(estimator);
