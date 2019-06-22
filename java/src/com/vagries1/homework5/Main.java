@@ -7,6 +7,7 @@
 package com.vagries1.homework5;
 
 import com.vagries1.homework5.bindings.BhcConfig;
+import com.vagries1.homework5.gooey.Gooey;
 import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -16,7 +17,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
-/** Main entry point for homework4. */
+/**
+ * Main entry point for homework5.
+ *
+ * @author Vincent Agriesti
+ */
 public class Main {
 
     /** Log4j logger object instance for this class. */
@@ -27,6 +32,14 @@ public class Main {
         System.out.printf("Usage: Main\n\n");
     }
 
+    /**
+     * This method binds the xmlFile to the objects in the com.vagries1.homework5.binding package.
+     * This is the loader for the BhcConfig that supplies the possible user options in the
+     * BhcEstimator object.
+     *
+     * @param xmlFile The XML file that contains to bhcConfig data.
+     * @return The BhcConfig object tree that represents bhcConfig data.
+     */
     public static BhcConfig unmarshallConfig(File xmlFile) {
         JAXBContext jaxbContext;
         BhcConfig config = null;
@@ -63,8 +76,13 @@ public class Main {
 
         try {
             BhcConfig config;
+            BhcEstimator estimator;
+
+            // TODO: Embed this in the jar.
             config = Main.unmarshallConfig(new File("bhcConfig.xml"));
-            Gooey.deferredGui(config);
+
+            estimator = new BhcEstimator(config);
+            Gooey.deferredGui(estimator);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error: You did something wrong. Maybe read the javadocs? ;).");

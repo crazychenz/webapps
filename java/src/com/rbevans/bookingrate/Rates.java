@@ -87,11 +87,11 @@ public class Rates {
      * @return the cost of the trip
      */
     public double getCost() {
-        if (synched) {
-            return rate / 100.0;
-        } else {
-            return calculateCost() / 100.0;
-        }
+        // if (synched) {
+        //    return rate / 100.0;
+        // } else {
+        return calculateCost() / 100.0;
+        // }
     }
 
     /**
@@ -117,7 +117,7 @@ public class Rates {
      * 1st.
      *
      * @param month (1-Jan, 12-Dec)
-     * @param day
+     * @param day &lt;unknown&gt;
      */
     public void setSeasonStart(int month, int day) {
         seasonStartMonth = month;
@@ -130,7 +130,7 @@ public class Rates {
      * 1st.
      *
      * @param month (1-Jan, 12-Dec)
-     * @param day
+     * @param day &lt;unknown&gt;
      */
     public void setSeasonEnd(int month, int day) {
         seasonEndMonth = month;
@@ -304,7 +304,8 @@ public class Rates {
      * Set the duration of the reservation. One day hikes means no overnight, a two day hike is two
      * days, one night.
      *
-     * @param int the duration of the hike
+     * @param days the duration of the hike
+     * @return &lt;unknown&gt;
      */
     public boolean setDuration(int days) {
         boolean valid = false;
@@ -340,7 +341,11 @@ public class Rates {
         synched = false;
     }
 
-    /** Quick test of the class */
+    /**
+     * Quick test of the class
+     *
+     * @param argv &lt;unknown&gt;
+     */
     public static void main(String[] argv) {
         BookingDay startDay = new BookingDay(2008, 7, 1);
         BookingDay endDay = new BookingDay(2008, 7, 7);

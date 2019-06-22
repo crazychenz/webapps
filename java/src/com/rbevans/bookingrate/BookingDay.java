@@ -259,7 +259,7 @@ public class BookingDay {
      * Set the year of this date. This invalidates the BookingDay object, and isValidDate() must be
      * called again
      *
-     * @param year
+     * @param year &lt;unknown&gt;
      */
     public void setYear(int year) {
         validation = NOT_VALIDATED;
@@ -297,7 +297,7 @@ public class BookingDay {
     /**
      * Set the day of the month
      *
-     * @param dayOfMonth
+     * @param dayOfMonth &lt;unknown&gt;
      */
     public void setDayOfMonth(int dayOfMonth) {
         this.dayOfMonth = dayOfMonth;

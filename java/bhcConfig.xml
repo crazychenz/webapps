@@ -5,6 +5,10 @@
         <minYear>2018</minYear>
         <!-- maxYear(inclusive) -->
         <maxYear>2025</maxYear>
+        <!-- minMonth(inclusive) Note: should be greater or equal to _now_. -->
+        <minMonth>JUNE</minMonth>
+        <!-- maxMonth(inclusive) -->
+        <maxMonth>OCTOBER</maxMonth>
     </appointmentRange>
     <hikes>
         <hike>

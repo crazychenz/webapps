@@ -7,6 +7,7 @@
 package com.vagries1.homework5.bindings;
 
 import java.io.Serializable;
+import java.time.Month;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -24,6 +25,8 @@ public class AppointmentRange implements Serializable {
 
     int minYear;
     int maxYear;
+    String minMonth;
+    String maxMonth;
 
     public int getMinYear() {
         return minYear;
@@ -31,6 +34,22 @@ public class AppointmentRange implements Serializable {
 
     public int getMaxYear() {
         return maxYear;
+    }
+
+    public String getMinMonth() {
+        return minMonth;
+    }
+
+    public String getMaxMonth() {
+        return maxMonth;
+    }
+
+    public Month getMinMonthEnum() {
+        return Month.valueOf(minMonth);
+    }
+
+    public Month getMaxMonthEnum() {
+        return Month.valueOf(maxMonth);
     }
 
     public void setMinYear(int year) {
@@ -41,13 +60,23 @@ public class AppointmentRange implements Serializable {
         maxYear = year;
     }
 
+    public void setMinMonth(String month) {
+        minMonth = month;
+    }
+
+    public void setMaxMonth(String month) {
+        maxMonth = month;
+    }
+
     public AppointmentRange() {
         super();
     }
 
-    public AppointmentRange(int minYear, int maxYear) {
+    public AppointmentRange(int minYear, int maxYear, String minMonth, String maxMonth) {
         super();
         this.minYear = minYear;
         this.maxYear = maxYear;
+        this.minMonth = minMonth;
+        this.maxMonth = maxMonth;
     }
 }
