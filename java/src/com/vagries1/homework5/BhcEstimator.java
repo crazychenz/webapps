@@ -388,12 +388,6 @@ public class BhcEstimator {
      * @throws Exception When the year index is invalid.
      */
     public void setYear(int index) throws Exception {
-        // int year = Integer.parseInt(yearStr);
-        // int minYear = config.getAppointmentRange().getMinYear();
-        // int maxYear = config.getAppointmentRange().getMaxYear();
-        // if (year < minYear || year > maxYear) {
-        //    throw new Exception("bad year");
-        // }
         if (index >= getValidYears().size()) {
             resetYear();
             throw new Exception("bad year");
