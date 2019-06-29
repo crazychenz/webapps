@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
+/** @author Vincent Agriesti */
 public class BhcEstimatorTest {
 
     static final String TEST_CONFIG = "/com/vagries1/homework5/tests/bhcConfigTest.xml";
@@ -32,7 +33,7 @@ public class BhcEstimatorTest {
         durations = new ArrayList<Integer>();
         durations.add(new Integer(3));
         hikes = new ArrayList<Hike>();
-        hikes.add(new Hike("Gardiner Lake", "GARDINER", 40.00, 1.5, durations));
+        hikes.add(new Hike("Gardiner Lake", "GARDINER", 0, 40.00, 1.5, durations));
         cfg = new BhcConfig(apptRange, hikes);
         return cfg;
     }

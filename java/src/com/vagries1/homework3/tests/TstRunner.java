@@ -14,7 +14,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /** Class that facilitates JUnit tests for package. */
 @RunWith(Suite.class)
-@SuiteClasses({MainTest.class})
+@SuiteClasses({
+    // MainTest.class
+})
 public class TstRunner {
     static {
         // Boilerplate logger enable/disable code.

@@ -1,5 +1,4 @@
 <bhcConfig>
-    <name>Name here</name>
     <appointmentRange>
         <!-- minYear(inclusive) Note: should be greater or equal to _now_. -->
         <minYear>2018</minYear>
@@ -14,16 +13,14 @@
         <hike>
             <name>Gardiner Lake</name>
             <key>GARDINER</key>
-            <baseRate>40.00</baseRate>
-            <premiumMultiplier>1.5</premiumMultiplier>
+            <id>0</id>
             <duration>3</duration>
             <duration>5</duration>
         </hike>
         <hike>
             <name>Hellroaring Plateau</name>
             <key>HELLROARING</key>
-            <baseRate>35.00</baseRate>
-            <premiumMultiplier>1.5</premiumMultiplier>
+            <id>1</id>
             <duration>2</duration>
             <duration>3</duration>
             <duration>4</duration>
@@ -31,8 +28,7 @@
         <hike>
             <name>The Beaten Path</name>
             <key>BEATEN</key>
-            <baseRate>45.00</baseRate>
-            <premiumMultiplier>1.5</premiumMultiplier>
+            <id>2</id>
             <duration>5</duration>
             <duration>7</duration>
         </hike>

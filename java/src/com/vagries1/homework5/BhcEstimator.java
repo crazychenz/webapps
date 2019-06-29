@@ -11,6 +11,7 @@ import com.rbevans.bookingrate.Rates;
 import com.vagries1.homework5.bindings.BhcConfig;
 import com.vagries1.homework5.bindings.Hike;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
@@ -30,27 +31,28 @@ public class BhcEstimator {
     /** Log4j logger object instance for this class. */
     private static final Logger logger = LogManager.getLogger(BhcEstimator.class);
 
-    private BhcConfig config;
-    private Vector<String> validDurations;
-    private Vector<String> validDates;
-    private Vector<String> validMonths;
-    private Vector<String> validHikes;
-    private Vector<String> validYears;
+    protected BhcConfig config;
+    protected Vector<String> validDurations;
+    protected Vector<String> validDates;
+    protected Vector<String> validMonths;
+    protected Vector<String> validHikes;
+    protected Vector<String> validYears;
 
-    private HashMap<String, Rates.HIKE> hikeEnumMap;
-    private HashMap<String, Hike> hikeMap;
-    private HashMap<String, Integer> monthMap;
+    protected HashMap<String, Rates.HIKE> hikeEnumMap;
+    protected HashMap<String, Hike> hikeMap;
+    protected HashMap<String, Integer> monthMap;
 
     // Track values as indicies of vectors.
-    private int monthIdx;
-    private int dateIdx;
-    private int yearIdx;
-    private int durationIdx;
-    private Hike hike;
+    protected int monthIdx;
+    protected int dateIdx;
+    protected int yearIdx;
+    protected int durationIdx;
+    protected int hikeIdx;
+    protected Hike hike;
 
-    private boolean estimated;
-    private double estimate;
-    private String estimateInfo;
+    protected boolean estimated = false;
+    protected double estimate = 0.0;
+    protected String estimateInfo = null;
 
     /**
      * Constructor for business logic class of the hike estimate calculator.
@@ -119,6 +121,9 @@ public class BhcEstimator {
 
     /** Primary method to trigger an estimate calculation. */
     public void estimate() {
+        BookingDay startDay;
+        Rates rates = null;
+
         // We're assuming that our internal state is up to date when
         // this function is called.
         int year = Integer.parseInt(validYears.get(yearIdx));
@@ -127,8 +132,8 @@ public class BhcEstimator {
         int duration = Integer.parseInt(validDurations.get(durationIdx));
 
         logger.debug(String.format("Y %d M %d D %d Dur %d", year, month, date, duration));
-        BookingDay startDay = new BookingDay(year, month, date);
-        Rates rates = new Rates(Rates.HIKE.valueOf(hike.getKey()));
+        startDay = new BookingDay(year, month, date);
+        rates = new Rates(Rates.HIKE.valueOf(hike.getKey()));
         rates.setBeginDate(startDay);
         rates.setDuration(duration);
 
@@ -143,11 +148,18 @@ public class BhcEstimator {
      */
     private void updateValidDurations() {
         validDurations.removeAllElements();
-        for (int duration : hike.getDurationList()) {
-            validDurations.add(Integer.toString(duration));
+        for (Integer duration : hike.getDurationList()) {
+            if (duration == null) {
+                logger.error("Found invalid duration entry. Skipping.");
+                continue;
+            }
+            validDurations.add(duration.toString());
         }
-        // Set index 0 as default value.
-        resetDuration();
+
+        if (validDurations.size() > 0) {
+            // Set index 0 as default value.
+            resetDuration();
+        }
     }
 
     /**
@@ -192,9 +204,22 @@ public class BhcEstimator {
      * entries. (i.e. Year or Month)
      */
     private void updateValidDates() {
+        int month;
+        int year;
+
+        if (validMonths.size() == 0) {
+            logger.error("No valid months loaded.");
+            throw new IllegalArgumentException("bad months");
+        }
+
+        if (validYears.size() == 0) {
+            logger.error("No valid years loaded.");
+            throw new IllegalArgumentException("bad years");
+        }
+
+        month = monthFromName(validMonths.get(monthIdx)) + 1;
+        year = Integer.parseInt(validYears.get(yearIdx));
         validDates.removeAllElements();
-        int month = monthFromName(validMonths.get(monthIdx)) + 1;
-        int year = Integer.parseInt(validYears.get(yearIdx));
         for (int i = 1; i < getMaxDate(month, year) + 1; ++i) {
             validDates.add(Integer.toString(i));
         }
@@ -231,27 +256,9 @@ public class BhcEstimator {
      * @return The number of days in the month of the year.
      */
     private int getMaxDate(int month, int year) {
-        if (month == 2) {
-            if (year % 4 == 0) {
-                if (year % 100 == 0) {
-                    if (year % 400 == 0) {
-                        return 29;
-                    }
-                    return 28;
-                }
-                return 29;
-            }
-            return 28;
-        } else if (month == 1
-                || month == 3
-                || month == 5
-                || month == 7
-                || month == 8
-                || month == 10
-                || month == 12) {
-            return 31;
-        }
-        return 30;
+        Calendar calendar = new GregorianCalendar(year, month - 1, 1);
+        int days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        return days;
     }
 
     /** A clean reset of the date index without throwing exceptions. */
@@ -275,9 +282,28 @@ public class BhcEstimator {
 
     /** Method to initialize month values during construction. */
     private void initValidMonths() {
-        Calendar cal = Calendar.getInstance();
-        int minMonth = config.getAppointmentRange().getMinMonthEnum().ordinal();
-        int maxMonth = config.getAppointmentRange().getMaxMonthEnum().ordinal();
+        Calendar cal;
+        int minMonth;
+        int maxMonth;
+
+        cal = Calendar.getInstance();
+
+        try {
+            minMonth = config.getAppointmentRange().getMinMonthEnum().ordinal();
+        } catch (IllegalArgumentException e) {
+            logger.error("Min month is not valid Month.");
+            logger.debug("", e);
+            throw new IllegalArgumentException("bad min month");
+        }
+
+        try {
+            maxMonth = config.getAppointmentRange().getMaxMonthEnum().ordinal();
+        } catch (IllegalArgumentException e) {
+            logger.error("Max month is not valid Month.");
+            logger.debug("", e);
+            throw new IllegalArgumentException("bad max month");
+        }
+
         for (int i = minMonth; i < maxMonth; ++i) {
             String month;
             cal.set(1, i, 1);
@@ -302,9 +328,9 @@ public class BhcEstimator {
      * Translates the SHORT name of a month back to the Calendar const value of the given month.
      *
      * @param name Short name of the month. (Jan, Feb, ..., Nov, Dec)
-     * @return The integer value of the Calendar const value.
+     * @return The integer value of the Calendar const value or -1 on error.
      */
-    private int monthFromName(String name) {
+    protected int monthFromName(String name) {
         Calendar cal = Calendar.getInstance();
         for (int i = Calendar.JANUARY; i <= Calendar.DECEMBER; ++i) {
             String month;
@@ -410,19 +436,29 @@ public class BhcEstimator {
     /** Method to initialize hike values during construction. */
     private void initValidHikes() {
         for (Hike hike : config.getHikes()) {
-            String name = hike.getName();
-            Rates.HIKE hikeEnum = Rates.HIKE.valueOf(hike.getKey());
-            validHikes.add(name);
-            hikeEnumMap.put(name, hikeEnum);
-            hikeMap.put(name, hike);
+            try {
+                String name = hike.getName();
+                Rates.HIKE hikeEnum = Rates.HIKE.valueOf(hike.getKey());
+                validHikes.add(name);
+                hikeEnumMap.put(name, hikeEnum);
+                hikeMap.put(name, hike);
+            } catch (Exception e) {
+                logger.error("Invalid hike data detected. Skipping.");
+                logger.debug("", e);
+                continue;
+            }
         }
-        // Set index 0 as default value.
-        resetHike();
+
+        if (validHikes.size() > 0) {
+            // Set index 0 as default value.
+            resetHike();
+        }
     }
 
     /** A clean reset of the hike index without throwing exceptions. */
     public void resetHike() {
-        hike = hikeMap.get(getValidHikes().get(0));
+        hikeIdx = 0;
+        hike = hikeMap.get(getValidHikes().get(hikeIdx));
         if (validDurations != null) {
             updateValidDurations();
         }
@@ -441,6 +477,7 @@ public class BhcEstimator {
         }
 
         hike = hikeMap.get(getValidHikes().get(index));
+        hikeIdx = index;
 
         // Since hike changed, duration options may have changed.
         updateValidDurations();

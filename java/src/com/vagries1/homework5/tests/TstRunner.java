@@ -12,7 +12,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-/** Class that facilitates JUnit tests for package. */
+/**
+ * Class that facilitates JUnit tests for package.
+ *
+ * @author Vincent Agriesti
+ */
 @RunWith(Suite.class)
 @SuiteClasses({
     BhcEstimatorTest.class,

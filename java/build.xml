@@ -85,6 +85,7 @@
             <!-- I don't like this but it works. -->
             <fileset dir="${src.dir}" includes="**/*.properties" />
             <fileset dir="${src.dir}" includes="**/*.xml" />
+            <fileset dir="${src.dir}" includes="**/*.jpg" />
         </jar>
     </target>
 
@@ -124,6 +125,17 @@
             </classpath>
             <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
             <sysproperty key="logFilename" value="hw5-log4j.log" />
+        </java>
+    </target>
+
+    <target name="hw6" depends="jar">
+        <java fork="true" classname="com.vagries1.homework6.Main">
+            <env key="ENABLE_LOGGING" value="${enable_log4j}"/>
+            <classpath>
+                <pathelement location="dist/en605681.jar" />
+            </classpath>
+            <sysproperty key="log4j.configurationFile" value="log4j2.xml" />
+            <sysproperty key="logFilename" value="hw6-log4j.log" />
         </java>
     </target>
 

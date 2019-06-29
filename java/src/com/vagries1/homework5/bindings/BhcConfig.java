@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** @author Vincent Agriesti */
 @XmlRootElement(name = "bhcConfig")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BhcConfig implements Serializable {
@@ -40,12 +41,9 @@ public class BhcConfig implements Serializable {
     ArrayList<Hike> hikes;
 
     /**
-     * This method binds the xmlFile to the objects in the com.vagries1.homework5.binding package.
-     * This is the loader for the BhcConfig that supplies the possible user options in the
-     * BhcEstimator object.
+     * This method creates a unmarshaller object for use with any input stream.
      *
-     * @param xmlFile The XML file that contains to bhcConfig data.
-     * @return The BhcConfig object tree that represents bhcConfig data.
+     * @return An unmarshaller object on success, null on failure.
      */
     public static Unmarshaller createUnmarshaller() {
         JAXBContext jaxbContext;
@@ -55,7 +53,8 @@ public class BhcConfig implements Serializable {
             jaxbContext = JAXBContext.newInstance(BhcConfig.class);
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.error("Failed to create object to unmarshall XML.");
+            logger.debug(e);
         }
 
         return jaxbUnmarshaller;
@@ -67,7 +66,7 @@ public class BhcConfig implements Serializable {
      * BhcEstimator object.
      *
      * @param xmlFile The XML file that contains to bhcConfig data.
-     * @return The BhcConfig object tree that represents bhcConfig data.
+     * @return The BhcConfig object tree that represents bhcConfig data or null on failure.
      */
     public static BhcConfig unmarshallFile(File xmlFile) {
         BhcConfig config = null;
@@ -75,7 +74,8 @@ public class BhcConfig implements Serializable {
         try {
             config = (BhcConfig) createUnmarshaller().unmarshal(xmlFile);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.error("Failed to unmarshall bhcConfig.xml from file.");
+            logger.debug(e);
         }
 
         return config;
@@ -86,8 +86,8 @@ public class BhcConfig implements Serializable {
      * This is the loader for the BhcConfig that supplies the possible user options in the
      * BhcEstimator object.
      *
-     * @param xmlFile The XML file that contains to bhcConfig data.
-     * @return The BhcConfig object tree that represents bhcConfig data.
+     * @param xmlStream The XML stream that contains to bhcConfig data.
+     * @return The BhcConfig object tree that represents bhcConfig data or null on failure.
      */
     public static BhcConfig unmarshallStream(InputStream xmlStream) {
         BhcConfig config = null;
@@ -95,7 +95,8 @@ public class BhcConfig implements Serializable {
         try {
             config = (BhcConfig) createUnmarshaller().unmarshal(xmlStream);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.error("Failed to unmarshall bhcConfig.xml from input stream.");
+            logger.debug(e);
         }
 
         return config;

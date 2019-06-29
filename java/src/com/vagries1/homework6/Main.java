@@ -4,68 +4,24 @@
  *
  */
 
-package com.vagries1.homework5;
+package com.vagries1.homework6;
 
 import com.vagries1.homework5.bindings.BhcConfig;
 import com.vagries1.homework5.gooey.Gooey;
 import java.io.File;
 import java.io.InputStream;
-import java.io.PrintStream;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
 
 /**
  * Main entry point for homework5.
  *
  * @author Vincent Agriesti
  */
-public class Main {
+public class Main extends com.vagries1.homework5.Main {
 
     /** Log4j logger object instance for this class. */
     private static final Logger logger = LogManager.getLogger(Main.class);
-
-    protected static final String DEFAULT_CONFIG =
-            "/com/vagries1/homework5/bindings/bhcConfigDefault.xml";
-
-    /** Prints to STDOUT the brief usage documentation from CLI. */
-    public static void showUsage() {
-        PrintStream out = System.out;
-        out.println("Usage: java -jar en60581.jar [OPTIONS...]");
-        out.println("BHC Hiking Calculator.\n");
-        out.println("Arguments:");
-        out.println("   --help     This help message.");
-        out.println("   --config   Path to bhcConfig.xml");
-        out.println("\nVerbosity Arguments:");
-        out.println("   --enable-logging <path>  Enable version logging.");
-        out.println("");
-    }
-
-    protected static void handleLoggerControl(String[] args) {
-        // Assume no logs
-        boolean enableLogging = false;
-
-        // Environment variable logger enable/disable code.
-        if (System.getenv().containsKey("ENABLE_LOGGING")) {
-            if (System.getenv().get("ENABLE_LOGGING").compareTo("1") == 0) {
-                enableLogging = true;
-            }
-        }
-
-        // Command line logger enable/disable code.
-        // Note: CLI takes priority over environment variable.
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("--enable-logging")) {
-                enableLogging = true;
-                break;
-            }
-        }
-
-        if (enableLogging == false) {
-            Configurator.setRootLevel(Level.OFF);
-        }
-    }
 
     /**
      * Entry point method from command line.
@@ -101,7 +57,7 @@ public class Main {
 
         try {
             BhcConfig config;
-            BhcEstimator estimator = null;
+            BhcEstimatorRemote estimator = null;
 
             if (configFile != null) {
                 config = BhcConfig.unmarshallFile(new File(configFile));
@@ -117,7 +73,7 @@ public class Main {
             }
 
             try {
-                estimator = new BhcEstimator(config);
+                estimator = new BhcEstimatorRemote(config);
             } catch (Exception e) {
                 String msg = "ERROR: Failed to load BhcEstimator. (" + e.getMessage() + ")";
                 System.out.println(msg);

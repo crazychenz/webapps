@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** @author Vincent Agriesti */
 @XmlRootElement(name = "appointmentRange")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppointmentRange implements Serializable {
@@ -45,11 +46,15 @@ public class AppointmentRange implements Serializable {
     }
 
     public Month getMinMonthEnum() {
-        return Month.valueOf(minMonth);
+        Month month;
+        month = Month.valueOf(minMonth);
+        return month;
     }
 
     public Month getMaxMonthEnum() {
-        return Month.valueOf(maxMonth);
+        Month month;
+        month = Month.valueOf(maxMonth);
+        return month;
     }
 
     public void setMinYear(int year) {

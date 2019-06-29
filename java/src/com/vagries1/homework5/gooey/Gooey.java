@@ -14,13 +14,16 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.Vector;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -58,6 +61,7 @@ public class Gooey implements ActionListener {
     GooeyProperties properties;
     BhcConfig config;
     boolean isHighRes = false;
+    static JFrame frame = null;
 
     /**
      * To simplify the management of JComponent elements, we store all of the components in a single
@@ -77,8 +81,9 @@ public class Gooey implements ActionListener {
      * Constructor for creating frontend Gooey object instance.
      *
      * @param estimator The backend business logic object instance.
+     * @throws GooeyPropertyException When failing to construct properties object.
      */
-    public Gooey(BhcEstimator estimator) {
+    public Gooey(BhcEstimator estimator) throws GooeyPropertyException {
         this.estimator = estimator;
         properties = new GooeyProperties();
         elements = new GooeyElementMap();
@@ -86,41 +91,74 @@ public class Gooey implements ActionListener {
 
     /** Actions to perform when the calculate button is pressed. */
     public void onCalculateEstimate() {
+        final String CURRENCY_FORMAT = "#.00";
         JTextField estimateField;
         estimateField = elements.getAs("ESTIMATE_FIELD", JTextField.class);
 
-        estimator.estimate();
+        try {
+            estimator.estimate();
+        } catch (NullPointerException e) {
+            String msg = "Hike enum key given to Rates is null.";
+            JOptionPane.showMessageDialog(null, msg);
+            logger.error(msg);
+            logger.debug("", e);
+            return;
+        } catch (IllegalArgumentException e) {
+            String msg = "Hike enum key is not part of Rates.HIKE enumeration.";
+            JOptionPane.showMessageDialog(null, msg);
+            logger.error(msg);
+            logger.debug("", e);
+            return;
+        }
+
+        if (!estimator.hasEstimate()) {
+            try {
+                String msg = estimator.getEstimateInfo();
+                JLabel label;
+                int FONT_SIZE = properties.asInt("HIGH_RES_FONT_SIZE");
+
+                if (msg.compareTo("begin or end date was out of season") == 0) {
+                    msg = properties.asStr("END_DATE_OUT_OF_SEASON_MSG");
+                    label = new JLabel(msg);
+                } else {
+                    // This is a catch all for unlikely values.
+                    label = new JLabel(msg);
+                }
+                if (isHighRes) {
+                    label.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+                }
+
+                JOptionPane.showMessageDialog(null, label);
+                logger.info(estimator.getEstimateInfo());
+
+            } catch (GooeyPropertyException e) {
+                String msg = "Failed to find required information during estimate.";
+                JOptionPane.showMessageDialog(null, msg);
+                logger.error(msg);
+                logger.debug("", e);
+                return;
+            }
+        }
 
         if (estimator.getEstimate() > 0) {
-            DecimalFormat df = new DecimalFormat("#.00");
+            DecimalFormat df = new DecimalFormat(CURRENCY_FORMAT);
             estimateField.setText("$" + df.format(estimator.getEstimate()));
         }
-        String msg = estimator.getEstimateInfo();
-        if (msg == "begin or end date was out of season") {
-            int FONT_SIZE = properties.asInt("HIGH_RES_FONT_SIZE");
-            msg = properties.asStr("END_DATE_OUT_OF_SEASON_MSG");
-            JLabel label = new JLabel(msg);
-            if (isHighRes) {
-                label.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
-            }
-            JOptionPane.showMessageDialog(null, label);
-        } else if (msg != "valid dates") {
-            // This is a catch all for unlikely values.
-            JOptionPane.showMessageDialog(null, msg);
-        }
-        logger.info(estimator.getEstimateInfo());
     }
 
     /** Actions to perform when the hike field is changed. */
     public void onHikeFieldUpdate() {
         JComboBox<String> comboBox;
         JComboBox<String> hikeField;
+
         hikeField = elements.getAs("HIKE_FIELD", JComboBoxStringType);
         try {
             estimator.setHikeIdx(hikeField.getSelectedIndex());
         } catch (Exception e) {
             // Note: Unlikely this will ever happen.
             String msg = "Detected invalid hike entry. Resetting field.";
+            logger.error(msg);
+            logger.debug("", e);
             JOptionPane.showMessageDialog(null, msg);
             estimator.resetHike();
             hikeField.setSelectedIndex(0);
@@ -137,6 +175,7 @@ public class Gooey implements ActionListener {
     public void onMonthFieldUpdate() {
         JComboBox<String> comboBox;
         JComboBox<String> monthField;
+
         monthField = elements.getAs("MONTH_FIELD", JComboBoxStringType);
         try {
             estimator.setMonthIdx(monthField.getSelectedIndex());
@@ -158,6 +197,7 @@ public class Gooey implements ActionListener {
     public void onYearFieldUpdate() {
         JComboBox<String> comboBox;
         JComboBox<String> yearField;
+
         yearField = elements.getAs("YEAR_FIELD", JComboBoxStringType);
         try {
             estimator.setYearIdx(yearField.getSelectedIndex());
@@ -178,6 +218,7 @@ public class Gooey implements ActionListener {
     /** Actions to perform when the date field is changed. */
     public void onDateFieldUpdate() {
         JComboBox<String> dateField;
+
         dateField = elements.getAs("DATE_FIELD", JComboBoxStringType);
         try {
             estimator.setDateIdx(dateField.getSelectedIndex());
@@ -193,6 +234,7 @@ public class Gooey implements ActionListener {
     /** Actions to perform when the duration field is changed. */
     public void onDurationFieldUpdate() {
         JComboBox<String> durationField;
+
         durationField = elements.getAs("DURATION_FIELD", JComboBoxStringType);
         try {
             estimator.setDurationIdx(durationField.getSelectedIndex());
@@ -250,7 +292,7 @@ public class Gooey implements ActionListener {
      * @param items The vector data that is loaded into the JComboBox model.
      * @return Returns the JComboBox&lt;String&gt; object.
      */
-    public JComboBox<String> loadComboBox(
+    private JComboBox<String> loadComboBox(
             String key, GooeyElementMap elements, Vector<String> items) {
 
         JComboBox<String> comboBox;
@@ -259,10 +301,49 @@ public class Gooey implements ActionListener {
         model = new DefaultComboBoxModel<String>(items);
         comboBox = new JComboBox<String>(model);
         elements.putAs(key, JComboBoxStringType, comboBox);
-        comboBox.addActionListener(this);
         comboBox.setSelectedIndex(0);
+        comboBox.addActionListener(this);
 
         return comboBox;
+    }
+
+    /**
+     * Creates a label with an ImageIcon as the content. Adds reference to GooeyElementMap.
+     *
+     * @param key The key that the JLabel gets saved as in GooeyElementMap
+     * @param elements The GooeyElementMap to save JLabel to.
+     * @param img The BufferedImage that is added to the JLabel
+     * @return The JLabel reference.
+     */
+    private JLabel loadHeading(String key, GooeyElementMap elements, BufferedImage img) {
+        final int DIV_HALF = 2;
+        final int DIV_IDENT = 1;
+        JLabel label;
+        Image dimg;
+        int width;
+        int height;
+        int divisor = DIV_HALF;
+
+        if (isHighRes) {
+            divisor = DIV_IDENT;
+        }
+
+        width = img.getWidth() / divisor;
+        height = img.getHeight() / divisor;
+        try {
+            dimg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        } catch (IllegalArgumentException e) {
+            String msg = "Failed to loader header image.";
+            JOptionPane.showMessageDialog(null, msg);
+            logger.error(msg);
+            logger.debug("", e);
+            return null;
+        }
+
+        label = new JLabel(new ImageIcon(dimg));
+        elements.putAs(key, JLabel.class, label);
+
+        return label;
     }
 
     /**
@@ -271,51 +352,62 @@ public class Gooey implements ActionListener {
      *
      * @return JPanel object with all form elements added.
      */
-    public JPanel createFormPanel() {
+    private JPanel createFormPanel() {
 
         JButton calculateButton;
         JTextField estimateField;
 
-        JPanel panel = new JPanel(new GridBagLayout());
-
         // Creating some aliases for easier reading.
-        GooeyElementMap e = elements;
+        GooeyElementMap elems = elements;
         GooeyProperties p = properties;
 
-        e.putAs("HIKE_LABEL", JLabel.class, p.asJLabel("HIKE_LABEL"));
-        loadComboBox("HIKE_FIELD", elements, estimator.getValidHikes());
+        JPanel panel = new JPanel(new GridBagLayout());
 
-        e.putAs("DATE_LABEL", JLabel.class, p.asJLabel("DATE_LABEL"));
-        loadComboBox("MONTH_FIELD", elements, estimator.getValidMonths());
-        loadComboBox("YEAR_FIELD", elements, estimator.getValidYears());
-        loadComboBox("DATE_FIELD", elements, estimator.getValidDates());
+        try {
+            loadHeading("HEADING", elements, p.asBufferedImage("HEADING"));
 
-        e.putAs("DURATION_LABEL", JLabel.class, p.asJLabel("DURATION_LABEL"));
-        loadComboBox("DURATION_FIELD", elements, estimator.getValidDurations());
+            elems.putAs("HIKE_LABEL", JLabel.class, p.asJLabel("HIKE_LABEL"));
+            loadComboBox("HIKE_FIELD", elements, estimator.getValidHikes());
 
-        calculateButton = p.asJButton("CALCULATE_BUTTON");
-        e.putAs("CALCULATE_BUTTON", JButton.class, calculateButton);
-        calculateButton.addActionListener(this);
+            elems.putAs("DATE_LABEL", JLabel.class, p.asJLabel("DATE_LABEL"));
+            loadComboBox("MONTH_FIELD", elements, estimator.getValidMonths());
+            loadComboBox("YEAR_FIELD", elements, estimator.getValidYears());
+            loadComboBox("DATE_FIELD", elements, estimator.getValidDates());
 
-        e.putAs("ESTIMATE_LABEL", JLabel.class, p.asJLabel("ESTIMATE_LABEL"));
-        estimateField = p.asJTextField("ESTIMATE_FIELD");
-        estimateField.setEditable(false);
-        e.putAs("ESTIMATE_FIELD", JTextField.class, estimateField);
+            elems.putAs("DURATION_LABEL", JLabel.class, p.asJLabel("DURATION_LABEL"));
+            loadComboBox("DURATION_FIELD", elements, estimator.getValidDurations());
 
-        // Default GUI is a bit hard to see in 4K.
-        if (isHighRes) {
-            int FONT_SIZE = p.asInt("HIGH_RES_FONT_SIZE");
-            for (String key : e.keySet()) {
-                Container cont = e.getAs(key, JComponent.class);
-                cont.setFont(new Font(cont.getName(), Font.PLAIN, FONT_SIZE));
+            calculateButton = p.asJButton("CALCULATE_BUTTON");
+            elems.putAs("CALCULATE_BUTTON", JButton.class, calculateButton);
+            calculateButton.addActionListener(this);
+
+            elems.putAs("ESTIMATE_LABEL", JLabel.class, p.asJLabel("ESTIMATE_LABEL"));
+            estimateField = p.asJTextField("ESTIMATE_FIELD");
+            estimateField.setEditable(false);
+            elems.putAs("ESTIMATE_FIELD", JTextField.class, estimateField);
+
+            // Default GUI is a bit hard to see in 4K.
+            if (isHighRes) {
+                int FONT_SIZE = p.asInt("HIGH_RES_FONT_SIZE");
+                for (String key : elems.keySet()) {
+                    Container cont = elems.getAs(key, JComponent.class);
+                    cont.setFont(new Font(cont.getName(), Font.PLAIN, FONT_SIZE));
+                }
             }
-        }
 
-        // Add all the GUI elements to panel.
-        for (String key : e.keySet()) {
-            GridBagConstraints constraints;
-            constraints = p.asGridBagConstraints(key);
-            panel.add(e.getAs(key, JComponent.class), constraints);
+            // Add all the GUI elements to panel.
+            for (String key : elems.keySet()) {
+                GridBagConstraints constraints;
+                constraints = p.asGridBagConstraints(key);
+                panel.add(elems.getAs(key, JComponent.class), constraints);
+            }
+
+        } catch (GooeyPropertyException e) {
+            String msg = "Failed to setup JPanel due to missing properties.";
+            JOptionPane.showMessageDialog(null, msg);
+            logger.error(msg);
+            logger.debug("", e);
+            return null;
         }
 
         return panel;
@@ -331,21 +423,39 @@ public class Gooey implements ActionListener {
      */
     public JFrame createFrame() {
         JFrame frame = null;
+        JPanel panel = null;
         try {
-            frame = new JFrame(properties.asStr("FRAME_TITLE"));
+            Dimension screenSize;
 
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            try {
+                frame = new JFrame(properties.asStr("FRAME_TITLE"));
+            } catch (GooeyPropertyException e) {
+                String msg = "Failed to setup JFrame due to missing properties.";
+                JOptionPane.showMessageDialog(null, msg);
+                logger.error(msg);
+                logger.debug("", e);
+                return null;
+            }
+
+            screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             if (screenSize.getHeight() > 2000 && screenSize.getWidth() > 1500) {
                 isHighRes = true;
             }
 
-            frame.add(createFormPanel());
+            panel = createFormPanel();
+            if (panel == null) {
+                System.out.println("Failed to create main JPanel for JFrame.");
+                return null;
+            }
+
+            frame.add(panel);
 
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setResizable(false);
             frame.setLocationByPlatform(true);
         } catch (HeadlessException e) {
             System.out.println("No GUI framework found to load window.");
+            return null;
         }
         return frame;
     }
@@ -359,7 +469,16 @@ public class Gooey implements ActionListener {
      * @param estimator Reference to the estimator backend logic.
      */
     public static void deferredGui(BhcEstimator estimator) {
-        JFrame frame = new Gooey(estimator).createFrame();
+
+        try {
+            frame = new Gooey(estimator).createFrame();
+        } catch (GooeyPropertyException e) {
+            String msg = "Failed to load GooeyProperties.";
+            JOptionPane.showMessageDialog(null, msg);
+            logger.error(msg);
+            logger.debug("", e);
+        }
+
         if (frame != null) {
             Runnable runFrame =
                     new Runnable() {
@@ -371,6 +490,9 @@ public class Gooey implements ActionListener {
                     };
 
             SwingUtilities.invokeLater(runFrame);
+        } else {
+            System.out.println("Failed to generate JFrame.");
+            return;
         }
     }
 }
