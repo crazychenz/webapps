@@ -11,4 +11,5 @@
   <classpathentry exported="true" kind="lib" path="lib/log4j-api-2.10.0.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/log4j-core-2.10.0.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/junit-4.12.jar"/>
+  <classpathentry exported="true" kind="lib" path="lib/servlet-api.jar"/>
 </classpath>

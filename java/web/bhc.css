@@ -1,0 +1,33 @@
+
+* 
+{
+    font-family: sans-serif;
+}
+
+div.body_div
+{
+    width: 650px;
+}
+
+img.viewimage
+{
+    width: 30%;
+    height: auto;
+}
+
+table.trip_info_table
+{
+    border: 1px solid black;
+    border-spacing: 0 0;
+}
+
+table.trip_info_table td
+{
+    padding: 5px;
+    border: 1px solid black;
+}
+
+.note
+{
+    background-color: #ccccff;
+}

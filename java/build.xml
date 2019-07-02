@@ -8,6 +8,8 @@
     <property name="dist.dir" location="dist" />
     <property name="docs.dir" location="docs" />
     <property name="lib.dir" location="lib" />
+    <property name="web.dir" value="web" />
+    <property name="web.apps" value="D:\Java\apache-tomcat-8.5.42\webapps" />
     <property name="enable_log4j" value="0" />
 
     <path id="lib-classpath">
@@ -88,6 +90,46 @@
             <fileset dir="${src.dir}" includes="**/*.jpg" />
         </jar>
     </target>
+
+    <!-- Creates the deployable war file  -->
+    <target name="war" depends="compile">
+        <war warfile="${web.apps}/vagries1_en605681.war" webxml="${web.dir}/WEB-INF/web.xml">
+            <classes dir="${build.dir}" />
+            <lib dir="${lib.dir}">
+                <!-- exclude name="" -->
+            </lib>
+            <fileset dir="${web.dir}">
+                <exclude name="WEB-INF/web.xml" />
+            </fileset>
+        </war>
+    </target>
+
+    <!-- Constructs servlet deployment directory structure remotely. -->
+    <!-- target name="deploy" depends="war">
+        <copy todir="${public_html}/en605681/WEB-INF/classes" overwrite="false" verbose="false">
+            <fileset dir="${build.dir}" />
+        </copy>
+        <copy todir="${public_html}/en605681/WEB-INF/lib" overwrite="false" verbose="false">
+            <fileset dir="${lib.dir}" />
+        </copy>
+        <copy todir="${public_html}/en605681/WEB-INF" overwrite="false" verbose="false">
+            <fileset dir="${web.dir}/WEB-INF">
+                <include name="**/*.jsp" />
+                <include name="**/*.xml" />
+                <exclude name="WEB-INF/**/*" />
+            </fileset>
+        </copy>
+        <copy todir="${public_html}/en605681" overwrite="false" verbose="false">
+            <fileset dir="${web.dir}">
+                <include name="**/*.jsp" />
+                <include name="**/*.xml" />
+                <include name="**/*.html" />
+                <include name="**/*.xhtml" />
+            </fileset>
+        </copy>
+        <chmod perm="o+r" type="both" dir="${public_html}/en605681" />
+        <chmod perm="o+rx" type="dir" dir="${public_html}/en605681" />
+    </target -->
 
     <target name="main" depends="compile, jar, docs">
         <description>Main target</description>

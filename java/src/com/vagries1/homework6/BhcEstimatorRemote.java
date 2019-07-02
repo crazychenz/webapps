@@ -74,17 +74,14 @@ public class BhcEstimatorRemote extends BhcEstimator {
             socket.close();
 
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host: " + HOST);
-            System.exit(1);
+            estimateInfo = "Unable to resolve hostname: " + HOST;
+            logger.error(estimateInfo);
+            logger.debug("", e);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to: " + HOST);
-            System.exit(1);
+            estimateInfo = "Couldn't get I/O for the connection to: " + HOST;
+            logger.error(estimateInfo);
+            logger.debug("", e);
         }
-
-        // startDay = new BookingDay(year, month, date);
-        // rates = new Rates(Rates.HIKE.valueOf(hike.getKey()));
-        // rates.setBeginDate(startDay);
-        // rates.setDuration(duration);
 
         if (resp != null) {
             String[] parts = resp.split(":", 2);
