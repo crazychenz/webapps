@@ -112,7 +112,7 @@ public class Main extends HttpServlet {
         return "Cost: $" + df.format(cost);
     }
 
-    public void genHikeOptions()
+    // public void genHikeOptions()
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -130,7 +130,7 @@ public class Main extends HttpServlet {
             response.setContentType("text/html;charset=UTF-8");
             rd = request.getRequestDispatcher("index.jsp");
 
-            hikeOptions
+            // hikeOptions
 
             if (request.getParameter("calc") != null) {
                 request.setAttribute("result", estimate(request, response));

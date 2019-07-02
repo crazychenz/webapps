@@ -39,27 +39,82 @@ public class BhcEstimatorRemote extends BhcEstimator {
         super(config);
     }
 
-    /** Primary method to trigger an estimate calculation. */
-    public void estimate() {
-        // BookingDay startDay;
-        // Rates rates = null;
+    /**
+     * Utility function to simplify setting estimateInfo in error state.
+     *
+     * @param msg String message to set estimateInfo to.
+     * @param e Exception to pass to logger. May be null when no exception object available.
+     */
+    private void estimateError(String msg, Exception e) {
+        estimateInfo = msg;
+        logger.error(estimateInfo);
+        if (e != null) {
+            logger.debug("", e);
+        }
+    }
 
+    /** Primary method to trigger a remote estimate calculation. */
+    public void estimate() {
         // We're assuming that our internal state is up to date when
         // this function is called.
-        int year = Integer.parseInt(validYears.get(yearIdx));
-        int month = super.monthFromName(validMonths.get(monthIdx)) + 1;
-        int date = Integer.parseInt(validDates.get(dateIdx));
-        int duration = Integer.parseInt(validDurations.get(durationIdx));
 
-        String req = String.format("%d:%d:%d:%d:%d", hike.getId(), year, month, date, duration);
-        String resp = null;
+        int year;
+        int month;
+        int date;
+        int duration;
 
+        String value = "";
+        final String REQ_FMT = "%d:%d:%d:%d:%d";
+        String req;
+        String resp;
         Socket socket = null;
         PrintWriter out = null;
         BufferedReader in = null;
         String HOST = "web6.jhuep.com";
+        final int HOST_PORT = 20025;
+
+        // Assume failure.
+        estimated = false;
+
+        // Translate and sanitize input.
         try {
-            socket = new Socket(HOST, 20025);
+            value = validYears.get(yearIdx);
+            year = Integer.parseInt(value);
+        } catch (Exception e) {
+            estimateError("Invalid year value: " + value, e);
+            return;
+        }
+
+        try {
+            value = validMonths.get(monthIdx);
+            month = super.monthFromName(value) + 1;
+        } catch (Exception e) {
+            estimateError("Invalid month value: " + value, e);
+            return;
+        }
+
+        try {
+            value = validDates.get(dateIdx);
+            date = Integer.parseInt(value);
+        } catch (Exception e) {
+            estimateError("Invalid date value: " + value, e);
+            return;
+        }
+
+        try {
+            value = validDurations.get(durationIdx);
+            duration = Integer.parseInt(value);
+        } catch (Exception e) {
+            estimateError("Invalid duration value: " + value, e);
+            return;
+        }
+
+        // Construct request.
+        req = String.format(REQ_FMT, hike.getId(), year, month, date, duration);
+        resp = null;
+        try {
+            // Transfer command/response.
+            socket = new Socket(HOST, HOST_PORT);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -72,22 +127,38 @@ public class BhcEstimatorRemote extends BhcEstimator {
             out.close();
             in.close();
             socket.close();
-
         } catch (UnknownHostException e) {
-            estimateInfo = "Unable to resolve hostname: " + HOST;
-            logger.error(estimateInfo);
-            logger.debug("", e);
+            estimateError("Unable to resolve hostname: " + HOST, e);
         } catch (IOException e) {
-            estimateInfo = "Couldn't get I/O for the connection to: " + HOST;
-            logger.error(estimateInfo);
-            logger.debug("", e);
+            estimateError("Couldn't get I/O for the connection to: " + HOST, e);
+        } catch (Exception e) {
+            estimateError("Failed to transfer command/response with: " + HOST, e);
         }
 
         if (resp != null) {
-            String[] parts = resp.split(":", 2);
-            estimate = Double.parseDouble(parts[0]);
+            // Parse response.
+            String[] parts;
+            String info;
+
+            parts = resp.split(":", 2);
+            if (parts.length < 2) {
+                estimateError("Failed to parse response from: " + HOST, null);
+                return;
+            }
+
+            try {
+                estimate = Double.parseDouble(parts[0]);
+                info = parts[1];
+            } catch (Exception e) {
+                estimateError("Failed to parse values from response: " + HOST, e);
+                return;
+            }
+
+            estimateInfo = info;
+
+            // If we made it here and the estimate is greater than zero
+            // we finally set it to true.
             estimated = estimate < 0 ? false : true;
-            estimateInfo = parts[1];
         }
     }
 }
