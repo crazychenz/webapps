@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
-import javax.servlet.RequestDispatcher;
+import java.util.Objects;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -74,7 +74,6 @@ public class Main extends HttpServlet {
             } else if (date > 31) {
                 return "Date value to high. Date must be >= 1 and <= 31.";
             }
-            // TODO: Verify month days here.
 
         } catch (Exception e) {
             return "Invalid date format provided.";
@@ -87,12 +86,10 @@ public class Main extends HttpServlet {
             } else if (duration > 7) {
                 return "Duration value to high. Duration must be >= 1 and <= 31.";
             }
-            // TODO: Verify duration with hike here.
         } catch (Exception e) {
             return "Invalid duration format provided.";
         }
 
-        // logger.debug(String.format("Y %d M %d D %d Dur %d", year, month, date, duration));
         try {
             rates = new Rates(Rates.HIKE.valueOf(request.getParameter("hike")));
         } catch (Exception e) {
@@ -100,8 +97,6 @@ public class Main extends HttpServlet {
         }
 
         startDay = new BookingDay(year, month, date);
-        // TODO: Tour dates must be in season (June 1 - Sep 30).
-        // TODO: Make sure date is _after_ today.
 
         rates.setBeginDate(startDay);
         rates.setDuration(duration);
@@ -131,6 +126,73 @@ public class Main extends HttpServlet {
         }
         result = String.join("\n", lines);
         return result;
+    }
+
+    /** Dumb template function to take the place of a JSP. 
+     * @param request HttpServletRequest with attributes preloaded for template.
+     * @return Returns a string to be written to response stream writer.
+     */
+    public String genPage(HttpServletRequest request) {
+        String result = Objects.toString((String) request.getAttribute("result"), "");
+        String hikes = Objects.toString((String) request.getAttribute("hikes"), "");
+        String dates = Objects.toString((String) request.getAttribute("dates"), "");
+        String years = Objects.toString((String) request.getAttribute("years"), "");
+        String months = Objects.toString((String) request.getAttribute("months"), "");
+        String durations = Objects.toString((String) request.getAttribute("durations"), "");
+        LinkedList<String> ll = new LinkedList<String>();
+        String output = null;
+
+        ll.add("<!DOCTYPE html>");
+
+        ll.add("<html lang=\"en\">");
+        ll.add("<head>");
+        ll.add("<title>Beartooth Hiking Company</title>");
+        ll.add("<meta charset=\"UTF-8\">");
+        ll.add("<link href=\"/bhc.css\" rel=\"stylesheet\" type=\"text/css\" />");
+        ll.add("</head>");
+        ll.add("<body>");
+        ll.add("<div class='body_div'>");
+        ll.add("<img src=\"../images/Beartooth002-01.jpg\" alt=\"Beartooth Vista\" />");
+        ll.add("<h1>Beartooth Hiking Company</h1>");
+
+        ll.add("<form action=\"bhc_calc\" method=\"post\">");
+        ll.add("Hikes:&nbsp;");
+        ll.add("<select name=\"hike\">");
+        ll.add(hikes);
+        ll.add("</select>");
+        ll.add("<br />");
+
+        ll.add("Date:&nbsp;");
+        ll.add("<select name=\"month\">");
+        ll.add(months);
+        ll.add("</select>&nbsp;");
+        ll.add("<select name=\"date\">");
+        ll.add(dates);
+        ll.add("</select>");
+        ll.add("<select name=\"year\">");
+        ll.add(years);
+        ll.add("</select>");
+        ll.add("<br />");
+
+        ll.add("Duration:&nbsp;");
+        ll.add("<select name=\"duration\">");
+        ll.add(durations);
+        ll.add("</select>");
+        ll.add("<br />");
+
+        ll.add("<input type=\"submit\" name=\"calc\" value=\"Calculate\" />");
+        ll.add("<br />");
+
+        ll.add("</form>");
+
+        ll.add("<h2>" + result + "</h2>");
+
+        ll.add("</div>");
+        ll.add("</body>");
+        ll.add("</html>");
+
+        output = String.join("\n", ll);
+        return output;
     }
 
     /**
@@ -180,7 +242,8 @@ public class Main extends HttpServlet {
         HashMap<String, String> map;
 
         try {
-            RequestDispatcher rd;
+            // RequestDispatcher declaration should go here.
+            // RequestDispatcher rd;
 
             in = new Main().getClass().getResourceAsStream(DEFAULT_CONFIG);
             config = BhcConfig.unmarshallStream(in);
@@ -192,7 +255,8 @@ public class Main extends HttpServlet {
 
             out = response.getWriter();
             response.setContentType("text/html;charset=UTF-8");
-            rd = request.getRequestDispatcher("index.jsp");
+            // If I were to intelligently use JSP, I'd request resource here.
+            // rd = request.getRequestDispatcher("index.jsp");
 
             // Dynamically determine hikes from config.xml
             map = new LinkedHashMap<String, String>();
@@ -219,7 +283,7 @@ public class Main extends HttpServlet {
 
             // Just statically doing all years for simplicity. (No javascript is annoying.)
             map = new LinkedHashMap<String, String>();
-            for (int i = 2019; i <= 2021; ++i) {
+            for (int i = 2018; i <= 2025; ++i) {
                 map.put(Integer.toString(i), Integer.toString(i));
             }
             current = request.getParameter("year");
@@ -237,7 +301,12 @@ public class Main extends HttpServlet {
                 request.setAttribute("result", estimate(request, response));
             }
 
-            rd.forward(request, response);
+            // If I were to intelligently use JSP, I'd pass request forward here.
+            // rd.forward(request, response);
+
+            // Just dump a page template here.
+            out.println(genPage(request));
+
         } finally {
             if (out != null) {
                 out.close();
