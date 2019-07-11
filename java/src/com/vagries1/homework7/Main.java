@@ -1,3 +1,9 @@
+/* Copyright © 2019
+ * Vincent Agriesti
+ * All rights reserved.
+ *
+ */
+
 package com.vagries1.homework7;
 
 import com.rbevans.bookingrate.BookingDay;
@@ -24,6 +30,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Servlet that is responsible for handing the BHC hike cost calculations and 
+ * reporting costs or errors to the user.
+ *
+ * @author Vincent Agriesti
+ */
 public class Main extends HttpServlet {
 
     private static final long serialVersionUID = 1L;

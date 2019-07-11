@@ -27,7 +27,20 @@ table.trip_info_table td
     border: 1px solid black;
 }
 
+h2.result
+{
+    color: #030;
+}
+
 .note
 {
     background-color: #ccccff;
+}
+
+iframe:focus { 
+    outline: none;
+}
+
+iframe[seamless] { 
+    display: block;
 }

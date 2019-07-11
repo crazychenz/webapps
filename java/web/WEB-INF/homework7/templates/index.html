@@ -4,14 +4,99 @@
     <head>
         <title>Beartooth Hiking Company</title>
         <meta charset="UTF-8">
-        <link href="/bhc.css" rel="stylesheet" type="text/css" />
+        <link href="../bhc.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
         <div class='body_div'>
             <img src="../images/Beartooth002-01.jpg" alt="Beartooth Vista" />
             <h1>Beartooth Hiking Company</h1>
 
-            <form action="bhc_calc" method="post">
+            <ol>
+                <li><a href="#overview">Guided Hiking Overview</a></li>
+                <li><a href="#trip_information">Trip Information</a></li>
+                <li><a href="#hike_calculator">Hike Cost Calculator</a></li>
+                <li><a href="#difficulty_terms">Difficulty Definitions</a></li>
+                <li><a href="#more_views">Views From Our Trails</a></li>
+            </ol>
+            <br />
+
+            <h2 id="overview">Guided Hiking Overview</h2>
+            <div>
+                <img src='../images/Hiking2.gif' alt="Happy Hikers" />
+                <p>
+                    Beartooth Hiking Company (BHC) provides guided hikes through the 
+                    beautiful Beartooth Wilderness. Currently, BHC provides three
+                    hiking opportunities that include:<br />
+                </p>
+                
+                <ul>
+                    <li>Gardiner Lake</li>
+                    <li>Hellroaring Plateau</li>
+                    <li>The Beaten Path</li>
+                </ul>
+                <br />
+
+                If you are interesting in finding out more general information 
+                about the Beartooth Wilderness, you may want to try going to 
+                <a href="http://www.wilderness.net/index.cfm?fuse=NWPS&sec=wildView&WID=1">
+                    Wilderness Connect - Absaroka-Beartooth Wilderness
+                </a>.
+                <div class="note">
+                    <p>
+                        Note: BHC is not directly affiliated with 
+                        Wilderness.net Connect. For more information on 
+                        Wilderness.net, please see 
+                        <a href="https://www.wilderness.net/">Wilderness.net</a>
+                    </p>
+                </div>
+            </div>
+            <br />
+            
+            <h2 id="trip_information">Trip Information</h2>
+            <img src="../images/Camping02.gif" alt="Camping Tent" />
+            <p>
+                All of the hikes provided by BHC are over night hikes. BHC will
+                provide equipment, provisions, and a vetted guide. Each hike has
+                different prices and difficulty levels. Hikes additionally have
+                optional lengths. The cost is calculated on a perday basis for
+                each of the hikes. You can see more specific information in the
+                table below.
+            </p>
+            
+            <table class="trip_info_table">
+                <tr>
+                    <td>Location</td>
+                    <td>Duration</td>
+                    <td>Difficulty</td>
+                    <td>Cost</td>
+                </tr>
+                <tr>
+                    <td>Gardiner Lake</td>
+                    <td>3 or 5 days</td>
+                    <td><a href="#intermediate">Intermediate</a></td>
+                    <td>$40/day</td>
+                </tr>
+                <tr>
+                    <td>Hellroaring Plateau</td>
+                    <td>2, 3, or 4 days</td>
+                    <td><a href="#easy">Easy</a></td>
+                    <td>$35/day</td>
+                </tr>
+                <tr>
+                    <td>The Beaten Path</td>
+                    <td>5 or 7 days</td>
+                    <td><a href="#difficult">Difficult</a></td>
+                    <td>$45/day</td>
+                </tr>
+            </table>
+
+            <p>
+                <em>All hikes have a 50% surcharge for Sat/Sun hikes.</em>
+            </p>
+            <br />
+
+            <h2 id="hike_calculator">Hike Cost Calculator</h2>
+            <form action="bhc_calc#hike_calculator" method="post">
                 Hikes:&nbsp;
                 <select name="hike">
                     {{hikes}}
@@ -40,9 +125,48 @@
                 <br />
 
             </form>
+            <h2 class="result">{{result}}</h2>
 
-        <h2>{{result}}</h2>
+            <h2 id="difficulty_terms">Difficuly Level Information</h2>
+            <ul>
+                <li>
+                    <dfn id="easy">Easy</dfn> - An easy hike includes well 
+                    maintained trails with a very little elevation gain. 
+                    This difficulty is recommended for young and elderly 
+                    individuals.
+                </li>
+                <li>
+                    <dfn id="intermediate">Intermediate</dfn> - An intermediate 
+                    hike includes well maintained trails with a moderate 
+                    elevation gain.
+                </li>
+                <li>
+                    <dfn id="difficult">Difficult</dfn> - A difficult hike 
+                    includes rough terrain with increased milages and a 
+                    significant increate in elevation gain.
+                </li>
+            </ul>
 
+            <h2 id="more_views">Views From Our Trails</h2>
+
+            <a href="../images/BeartoothIslandLakeTrail_0326_800x600.jpg">
+                <img src="../images/BeartoothIslandLakeTrail_0326_800x600.jpg" 
+                    alt="Fishing View" 
+                    class="viewimage" />
+            </a>
+            <a href="../images/BeartoothView_800x600.jpg">
+                <img src="../images/BeartoothView_800x600.jpg" 
+                    alt="Scenic Overlook" 
+                    class="viewimage" />
+            </a>
+            <a href="../images/TetonTrail-2_800x600.jpg">
+                <img src="../images/TetonTrail-2_800x600.jpg" 
+                    alt="Natural Trail View" 
+                    class="viewimage" />
+            </a>
+
+            <br /><br /><br />
         </div>
     </body>
 </html>
+
