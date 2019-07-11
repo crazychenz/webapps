@@ -11,16 +11,11 @@ import java.time.Month;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /** @author Vincent Agriesti */
 @XmlRootElement(name = "appointmentRange")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppointmentRange implements Serializable {
-
-    /** Log4j logger object instance for this class. */
-    private static final Logger logger = LogManager.getLogger(AppointmentRange.class);
 
     private static final long serialVersionUID = 1L;
 

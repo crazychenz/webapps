@@ -1,14 +1,3 @@
-
-<%@ page import="java.util.Objects" %>
-<% 
-    String result = Objects.toString((String)request.getAttribute("result"), "");
-    String hikes = Objects.toString((String)request.getAttribute("hikes"), "");
-    String dates = Objects.toString((String)request.getAttribute("dates"), "");
-    String years = Objects.toString((String)request.getAttribute("years"), "");
-    String months = Objects.toString((String)request.getAttribute("months"), "");
-    String durations = Objects.toString((String)request.getAttribute("durations"), "");
-%>
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -25,25 +14,25 @@
             <form action="bhc_calc" method="post">
                 Hikes:&nbsp;
                 <select name="hike">
-                    <%= hikes %>
+                    {{hikes}}
                 </select>
                 <br />
 
                 Date:&nbsp;
                 <select name="month">
-                    <%= months %>
+                    {{months}}
                 </select>&nbsp;
                 <select name="date">
-                    <%= dates %>
+                    {{dates}}
                 </select>
                 <select name="year">
-                    <%= years %>
+                    {{years}}
                 </select>
                 <br />
 
                 Duration:&nbsp;
                 <select name="duration">
-                    <%= durations %>
+                    {{durations}}
                 </select>
                 <br />
 
@@ -52,7 +41,7 @@
 
             </form>
 
-            <h2><%= result %></h2>
+        <h2>{{result}}</h2>
 
         </div>
     </body>

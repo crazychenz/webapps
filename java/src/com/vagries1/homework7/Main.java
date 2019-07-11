@@ -4,9 +4,12 @@ import com.rbevans.bookingrate.BookingDay;
 import com.rbevans.bookingrate.Rates;
 import com.vagries1.homework5.bindings.BhcConfig;
 import com.vagries1.homework5.bindings.Hike;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -15,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +31,13 @@ public class Main extends HttpServlet {
     protected static final String DEFAULT_CONFIG =
             "/com/vagries1/homework5/bindings/bhcConfigDefault.xml";
 
-    public String estimate(HttpServletRequest request, HttpServletResponse response) {
+    /**
+     * Function responsible for calculating the estimate result.
+     *
+     * @param request The HttpServletRequest used for fetching request parameters.
+     * @return Returns the result string.
+     */
+    public String estimate(HttpServletRequest request) {
         final String CURRENCY_FORMAT = "#.00";
 
         BookingDay startDay = null;
@@ -112,6 +121,14 @@ public class Main extends HttpServlet {
         return "Cost: $" + df.format(cost);
     }
 
+    /**
+     * Helper function for generating arrays of HTML &lt;select&gt; options.
+     *
+     * @param current The key of the option currently selected. (Assumes only one can be selected.)
+     * @param map The disctionary of key value pairs that fill out option names and text
+     *     respectively.
+     * @return A String object with all serialized option elements.
+     */
     public String genOptions(String current, Map<String, String> map) {
         String result = null;
         LinkedList<String> lines = new LinkedList<String>();
@@ -128,70 +145,64 @@ public class Main extends HttpServlet {
         return result;
     }
 
-    /** Dumb template function to take the place of a JSP. 
+    // Source: http://roufid.com/5-ways-convert-inputstream-string-java/
+    public String inputStreamToString(InputStream inputStream) throws IOException {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String line = null;
+
+        try (BufferedReader bufferedReader =
+                new BufferedReader(new InputStreamReader(inputStream, Charset.defaultCharset()))) {
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+        }
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Helper function to remove type casting from code flow.
+     *
+     * @param req HttpServletRequest object that contains the attribute to fetch as String
+     * @param attr The name of the attribute as a String to fetch value as a String
+     * @return The value of the attribute @attr as a String
+     */
+    private String getAttrAsStr(HttpServletRequest req, String attr) {
+        String out;
+        out = (String) req.getAttribute(attr);
+        return out;
+    }
+
+    /**
+     * Dumb template function to take the place of a JSP.
+     *
      * @param request HttpServletRequest with attributes preloaded for template.
      * @return Returns a string to be written to response stream writer.
      */
-    public String genPage(HttpServletRequest request) {
-        String result = Objects.toString((String) request.getAttribute("result"), "");
-        String hikes = Objects.toString((String) request.getAttribute("hikes"), "");
-        String dates = Objects.toString((String) request.getAttribute("dates"), "");
-        String years = Objects.toString((String) request.getAttribute("years"), "");
-        String months = Objects.toString((String) request.getAttribute("months"), "");
-        String durations = Objects.toString((String) request.getAttribute("durations"), "");
-        LinkedList<String> ll = new LinkedList<String>();
-        String output = null;
+    public String genTemplatePage(HttpServletRequest req) {
+        final String TMPL_PATH = "/WEB-INF/homework7/templates/index.html";
+        String output = "";
+        InputStream tmpl = null;
 
-        ll.add("<!DOCTYPE html>");
+        try {
+            ServletContext context = this.getServletContext();
+            tmpl = context.getResourceAsStream(TMPL_PATH);
+            if (tmpl == null) {
+                output = "no template file found.";
+            } else {
+                output = inputStreamToString(tmpl);
+                output = output.replace("{{result}}", getAttrAsStr(req, "result"));
+                output = output.replace("{{hikes}}", getAttrAsStr(req, "hikes"));
+                output = output.replace("{{dates}}", getAttrAsStr(req, "dates"));
+                output = output.replace("{{years}}", getAttrAsStr(req, "years"));
+                output = output.replace("{{months}}", getAttrAsStr(req, "months"));
+                output = output.replace("{{durations}}", getAttrAsStr(req, "durations"));
+            }
+        } catch (IOException e) {
+            output = "";
+        }
 
-        ll.add("<html lang=\"en\">");
-        ll.add("<head>");
-        ll.add("<title>Beartooth Hiking Company</title>");
-        ll.add("<meta charset=\"UTF-8\">");
-        ll.add("<link href=\"/bhc.css\" rel=\"stylesheet\" type=\"text/css\" />");
-        ll.add("</head>");
-        ll.add("<body>");
-        ll.add("<div class='body_div'>");
-        ll.add("<img src=\"../images/Beartooth002-01.jpg\" alt=\"Beartooth Vista\" />");
-        ll.add("<h1>Beartooth Hiking Company</h1>");
-
-        ll.add("<form action=\"bhc_calc\" method=\"post\">");
-        ll.add("Hikes:&nbsp;");
-        ll.add("<select name=\"hike\">");
-        ll.add(hikes);
-        ll.add("</select>");
-        ll.add("<br />");
-
-        ll.add("Date:&nbsp;");
-        ll.add("<select name=\"month\">");
-        ll.add(months);
-        ll.add("</select>&nbsp;");
-        ll.add("<select name=\"date\">");
-        ll.add(dates);
-        ll.add("</select>");
-        ll.add("<select name=\"year\">");
-        ll.add(years);
-        ll.add("</select>");
-        ll.add("<br />");
-
-        ll.add("Duration:&nbsp;");
-        ll.add("<select name=\"duration\">");
-        ll.add(durations);
-        ll.add("</select>");
-        ll.add("<br />");
-
-        ll.add("<input type=\"submit\" name=\"calc\" value=\"Calculate\" />");
-        ll.add("<br />");
-
-        ll.add("</form>");
-
-        ll.add("<h2>" + result + "</h2>");
-
-        ll.add("</div>");
-        ll.add("</body>");
-        ll.add("</html>");
-
-        output = String.join("\n", ll);
         return output;
     }
 
@@ -232,6 +243,7 @@ public class Main extends HttpServlet {
         return monthMap;
     }
 
+    /** Handle HTTP GET request. */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -255,8 +267,6 @@ public class Main extends HttpServlet {
 
             out = response.getWriter();
             response.setContentType("text/html;charset=UTF-8");
-            // If I were to intelligently use JSP, I'd request resource here.
-            // rd = request.getRequestDispatcher("index.jsp");
 
             // Dynamically determine hikes from config.xml
             map = new LinkedHashMap<String, String>();
@@ -268,6 +278,7 @@ public class Main extends HttpServlet {
 
             // Dynamically determine month from config.xml
             map = initValidMonths(config);
+            request.setAttribute("months", "");
             if (map != null) {
                 current = request.getParameter("month");
                 request.setAttribute("months", genOptions(current, map));
@@ -297,15 +308,13 @@ public class Main extends HttpServlet {
             current = request.getParameter("duration");
             request.setAttribute("durations", genOptions(current, map));
 
+            request.setAttribute("result", "");
             if (request.getParameter("calc") != null) {
-                request.setAttribute("result", estimate(request, response));
+                request.setAttribute("result", estimate(request));
             }
 
-            // If I were to intelligently use JSP, I'd pass request forward here.
-            // rd.forward(request, response);
-
-            // Just dump a page template here.
-            out.println(genPage(request));
+            // Dump a resolved page template as response.
+            out.println(genTemplatePage(request));
 
         } finally {
             if (out != null) {
@@ -317,13 +326,10 @@ public class Main extends HttpServlet {
         }
     }
 
+    /** Handle HTTP POST requests. */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         doGet(request, response);
-    }
-
-    public void destroy() {
-        // do nothing.
     }
 }

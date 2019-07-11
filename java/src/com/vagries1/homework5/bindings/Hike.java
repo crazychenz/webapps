@@ -11,16 +11,11 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /** @author Vincent Agriesti */
 @XmlRootElement(name = "hike")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Hike implements Serializable {
-
-    /** Log4j logger object instance for this class. */
-    private static final Logger logger = LogManager.getLogger(Hike.class);
 
     private static final long serialVersionUID = 2L;
 
