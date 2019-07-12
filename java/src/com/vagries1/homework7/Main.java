@@ -17,11 +17,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.ServletContext;
@@ -31,8 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet that is responsible for handing the BHC hike cost calculations and 
- * reporting costs or errors to the user.
+ * Servlet that is responsible for handing the BHC hike cost calculations and reporting costs or
+ * errors to the user.
  *
  * @author Vincent Agriesti
  */
@@ -53,6 +55,7 @@ public class Main extends HttpServlet {
         final String CURRENCY_FORMAT = "#.00";
 
         BookingDay startDay = null;
+        BookingDay todayDay = null;
         Rates rates = null;
         Calendar today;
 
@@ -119,6 +122,16 @@ public class Main extends HttpServlet {
 
         startDay = new BookingDay(year, month, date);
 
+        // Check that date is future (based on date)
+        todayDay =
+                new BookingDay(
+                        today.get(Calendar.YEAR),
+                        today.get(Calendar.MONTH) + 1,
+                        today.get(Calendar.DATE));
+        if (!startDay.after(todayDay)) {
+            return "Start date must be no earlier than tomorrow.";
+        }
+
         rates.setBeginDate(startDay);
         rates.setDuration(duration);
 
@@ -130,7 +143,8 @@ public class Main extends HttpServlet {
         }
 
         df = new DecimalFormat(CURRENCY_FORMAT);
-        return "Cost: $" + df.format(cost);
+        info = "Cost: $" + df.format(cost);
+        return info;
     }
 
     /**
@@ -162,6 +176,7 @@ public class Main extends HttpServlet {
 
         StringBuilder stringBuilder = new StringBuilder();
         String line = null;
+        String output;
 
         try (BufferedReader bufferedReader =
                 new BufferedReader(new InputStreamReader(inputStream, Charset.defaultCharset()))) {
@@ -170,24 +185,12 @@ public class Main extends HttpServlet {
             }
         }
 
-        return stringBuilder.toString();
+        output = stringBuilder.toString();
+        return output;
     }
 
     /**
-     * Helper function to remove type casting from code flow.
-     *
-     * @param req HttpServletRequest object that contains the attribute to fetch as String
-     * @param attr The name of the attribute as a String to fetch value as a String
-     * @return The value of the attribute @attr as a String
-     */
-    private String getAttrAsStr(HttpServletRequest req, String attr) {
-        String out;
-        out = (String) req.getAttribute(attr);
-        return out;
-    }
-
-    /**
-     * Dumb template function to take the place of a JSP.
+     * Dumb template function to take the place of the forbidden JSP.
      *
      * @param request HttpServletRequest with attributes preloaded for template.
      * @return Returns a string to be written to response stream writer.
@@ -197,6 +200,10 @@ public class Main extends HttpServlet {
         String output = "";
         InputStream tmpl = null;
 
+        // Fields we use in our template.
+        List<String> list =
+                Arrays.asList("result", "hikes", "dates", "years", "months", "durations");
+
         try {
             ServletContext context = this.getServletContext();
             tmpl = context.getResourceAsStream(TMPL_PATH);
@@ -204,15 +211,14 @@ public class Main extends HttpServlet {
                 output = "no template file found.";
             } else {
                 output = inputStreamToString(tmpl);
-                output = output.replace("{{result}}", getAttrAsStr(req, "result"));
-                output = output.replace("{{hikes}}", getAttrAsStr(req, "hikes"));
-                output = output.replace("{{dates}}", getAttrAsStr(req, "dates"));
-                output = output.replace("{{years}}", getAttrAsStr(req, "years"));
-                output = output.replace("{{months}}", getAttrAsStr(req, "months"));
-                output = output.replace("{{durations}}", getAttrAsStr(req, "durations"));
+                for (String field : list) {
+                    String value;
+                    value = (String) req.getAttribute(field);
+                    output = output.replace("{{" + field + "}}", value);
+                }
             }
         } catch (IOException e) {
-            output = "";
+            output = "ERROR: Failed to access template.";
         }
 
         return output;
@@ -265,6 +271,13 @@ public class Main extends HttpServlet {
         InputStream in = null;
         HashMap<String, String> map;
 
+        final int MIN_DATE = 1;
+        final int MAX_DATE = 31;
+        final int MIN_YEAR = 2019;
+        final int MAX_YEAR = 2025;
+        final int MIN_DURATION = 2;
+        final int MAX_DURATION = 7;
+
         try {
             // RequestDispatcher declaration should go here.
             // RequestDispatcher rd;
@@ -298,7 +311,7 @@ public class Main extends HttpServlet {
 
             // Just statically doing all dates for simplicity. (No javascript is annoying.)
             map = new LinkedHashMap<String, String>();
-            for (int i = 1; i <= 31; ++i) {
+            for (int i = MIN_DATE; i <= MAX_DATE; ++i) {
                 map.put(Integer.toString(i), Integer.toString(i));
             }
             current = request.getParameter("date");
@@ -306,7 +319,7 @@ public class Main extends HttpServlet {
 
             // Just statically doing all years for simplicity. (No javascript is annoying.)
             map = new LinkedHashMap<String, String>();
-            for (int i = 2018; i <= 2025; ++i) {
+            for (int i = MIN_YEAR; i <= MAX_YEAR; ++i) {
                 map.put(Integer.toString(i), Integer.toString(i));
             }
             current = request.getParameter("year");
@@ -314,7 +327,7 @@ public class Main extends HttpServlet {
 
             // Just statically doing all durations for simplicity. (No javascript is annoying.)
             map = new LinkedHashMap<String, String>();
-            for (int i = 2; i <= 7; ++i) {
+            for (int i = MIN_DURATION; i <= MAX_DURATION; ++i) {
                 map.put(Integer.toString(i), Integer.toString(i));
             }
             current = request.getParameter("duration");
