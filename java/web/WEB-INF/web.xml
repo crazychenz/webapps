@@ -26,6 +26,16 @@
     <url-pattern>/homework8/bhc_calc</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>homework9_bhc_calc</servlet-name>
+        <servlet-class>com.vagries1.homework9.Controller</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+    <servlet-name>homework9_bhc_calc</servlet-name>
+    <url-pattern>/homework9/bhc_calc</url-pattern>
+    </servlet-mapping>
+
     <session-config>
       <session-timeout>30</session-timeout>
     </session-config>
