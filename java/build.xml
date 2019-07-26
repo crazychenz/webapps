@@ -93,7 +93,7 @@
 
     <!-- Creates the deployable war file  -->
     <target name="war" depends="compile">
-        <war warfile="${web.apps}/vagries1_en605681.war" webxml="${web.dir}/WEB-INF/web.xml">
+        <war warfile="${web.apps}/agriesti_hw8.war" webxml="${web.dir}/WEB-INF/web.xml">
             <classes dir="${build.dir}" />
             <lib dir="${lib.dir}">
                 <!-- exclude name="" -->

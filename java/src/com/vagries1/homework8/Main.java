@@ -4,7 +4,7 @@
  *
  */
 
-package com.vagries1.homework7;
+package com.vagries1.homework8;
 
 import com.rbevans.bookingrate.BookingDay;
 import com.rbevans.bookingrate.Rates;
@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -24,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -53,12 +53,15 @@ public class Main extends HttpServlet {
      */
     public String estimate(HttpServletRequest request, BhcConfig config) {
         final String CURRENCY_FORMAT = "#.00";
+        final String DATE_FMT = "MM/dd/yyyy";
 
         BookingDay startDay = null;
         BookingDay todayDay = null;
         Rates rates = null;
         Calendar today;
 
+        Calendar reqDate;
+        int hikers;
         int year;
         int month;
         int date;
@@ -67,47 +70,31 @@ public class Main extends HttpServlet {
         String info;
         DecimalFormat df;
 
+        try {
+            hikers = Integer.parseInt(request.getParameter("hikers"));
+            if (hikers < 1 || hikers > 10) {
+                return "Hikers must be between 1 and 10";
+            }
+        } catch (Exception e) {
+            return "Invalid hikers format provided.";
+        }
+
         today = new GregorianCalendar();
 
         try {
-            year = Integer.parseInt(request.getParameter("year"));
-            if (year < today.get(Calendar.YEAR)) {
-                return "Year must be present or future.";
-            } else if (year > 2025) {
-                return "Year must be less than or equal to 2025.";
-            }
-        } catch (Exception e) {
-            return "Invalid year format provided.";
-        }
-
-        try {
-            month = Integer.parseInt(request.getParameter("month"));
-            if (month < 1) {
-                return "Month value to low. Month must be >= 1 and <= 12.";
-            } else if (month > 12) {
-                return "Month value to high. Month must be >= 1 and <= 12.";
-            }
-        } catch (Exception e) {
-            return "Invalid month format provided.";
-        }
-
-        try {
-            date = Integer.parseInt(request.getParameter("date"));
-            if (date < 1) {
-                return "Date value to low. Date must be >= 1 and <= 31.";
-            } else if (date > 31) {
-                return "Date value to high. Date must be >= 1 and <= 31.";
-            }
+            reqDate = new GregorianCalendar();
+            reqDate.setTime(new SimpleDateFormat(DATE_FMT).parse(request.getParameter("date")));
+            month = reqDate.get(Calendar.MONTH) + 1;
+            year = reqDate.get(Calendar.YEAR);
+            date = reqDate.get(Calendar.DAY_OF_MONTH);
         } catch (Exception e) {
             return "Invalid date format provided.";
         }
 
         try {
             duration = Integer.parseInt(request.getParameter("duration"));
-            if (duration < 2) {
-                return "Duration value to low. Duration must be >= 1 and <= 31.";
-            } else if (duration > 7) {
-                return "Duration value to high. Duration must be >= 1 and <= 31.";
+            if (duration < 2 || duration > 7) {
+                return "Duration value to low. Duration must be >= 2 and <= 7.";
             }
 
             for (Hike hike : config.getHikes()) {
@@ -151,7 +138,11 @@ public class Main extends HttpServlet {
         }
 
         df = new DecimalFormat(CURRENCY_FORMAT);
-        info = "Cost: $" + df.format(cost);
+        info =
+                "Cost Per Hiker: $"
+                        + df.format(cost)
+                        + " / Total Cost: $"
+                        + df.format(cost * hikers);
         return info;
     }
 
@@ -204,13 +195,12 @@ public class Main extends HttpServlet {
      * @return Returns a string to be written to response stream writer.
      */
     public String genTemplatePage(HttpServletRequest req) {
-        final String TMPL_PATH = "/WEB-INF/homework7/templates/index.html";
+        final String TMPL_PATH = "/WEB-INF/homework8/templates/index.html";
         String output = "";
         InputStream tmpl = null;
 
         // Fields we use in our template.
-        List<String> list =
-                Arrays.asList("result", "hikes", "dates", "years", "months", "durations");
+        List<String> list = Arrays.asList("result", "hikers", "hikes", "date", "durations");
 
         try {
             ServletContext context = this.getServletContext();
@@ -232,43 +222,6 @@ public class Main extends HttpServlet {
         return output;
     }
 
-    /**
-     * Method to initialize month values during construction.
-     *
-     * @param config The BhcConfig object to get minimum and maximum months from.
-     * @return A map of option value as key and option text as value.
-     */
-    private LinkedHashMap<String, String> initValidMonths(BhcConfig config) {
-        Calendar cal;
-        int minMonth;
-        int maxMonth;
-        LinkedHashMap<String, String> monthMap;
-
-        monthMap = new LinkedHashMap<String, String>();
-        cal = Calendar.getInstance();
-
-        try {
-            minMonth = config.getAppointmentRange().getMinMonthEnum().ordinal();
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-
-        try {
-            maxMonth = config.getAppointmentRange().getMaxMonthEnum().ordinal();
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-
-        for (int i = minMonth; i < maxMonth; ++i) {
-            String month;
-            cal.set(1, i, 1);
-            month = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault());
-            monthMap.put(Integer.toString(i + 1), month);
-        }
-
-        return monthMap;
-    }
-
     /** Handle HTTP GET request. */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -281,16 +234,12 @@ public class Main extends HttpServlet {
         Calendar tomorrow = new GregorianCalendar();
         tomorrow.add(Calendar.DATE, 1);
 
-        final int MIN_DATE = 1;
-        final int MAX_DATE = 31;
-        final int MIN_YEAR = 2019;
-        final int MAX_YEAR = 2025;
         final int MIN_DURATION = 2;
         final int MAX_DURATION = 7;
+        final int MIN_HIKERS = 1;
+        final int MAX_HIKERS = 10;
 
         try {
-            // RequestDispatcher declaration should go here.
-            // RequestDispatcher rd;
 
             in = new Main().getClass().getResourceAsStream(DEFAULT_CONFIG);
             config = BhcConfig.unmarshallStream(in);
@@ -303,6 +252,17 @@ public class Main extends HttpServlet {
             out = response.getWriter();
             response.setContentType("text/html;charset=UTF-8");
 
+            // Hiker count should be between 1 and 10
+            map = new LinkedHashMap<String, String>();
+            for (int i = MIN_HIKERS; i <= MAX_HIKERS; ++i) {
+                map.put(Integer.toString(i), Integer.toString(i));
+            }
+            current = request.getParameter("hikers");
+            if (current == null) {
+                current = Integer.toString(MIN_HIKERS);
+            }
+            request.setAttribute("hikers", genOptions(current, map));
+
             // Dynamically determine hikes from config.xml
             map = new LinkedHashMap<String, String>();
             for (Hike hike : config.getHikes()) {
@@ -311,38 +271,11 @@ public class Main extends HttpServlet {
             current = request.getParameter("hike");
             request.setAttribute("hikes", genOptions(current, map));
 
-            // Dynamically determine month from config.xml
-            map = initValidMonths(config);
-            request.setAttribute("months", "");
-            if (map != null) {
-                current = request.getParameter("month");
-                if (current == null) {
-                    current = Integer.toString(tomorrow.get(Calendar.MONTH) + 1);
-                }
-                request.setAttribute("months", genOptions(current, map));
-            }
-
-            // Just statically doing all dates for simplicity. (No javascript is annoying.)
-            map = new LinkedHashMap<String, String>();
-            for (int i = MIN_DATE; i <= MAX_DATE; ++i) {
-                map.put(Integer.toString(i), Integer.toString(i));
-            }
             current = request.getParameter("date");
             if (current == null) {
-                current = Integer.toString(tomorrow.get(Calendar.DATE));
+                current = "";
             }
-            request.setAttribute("dates", genOptions(current, map));
-
-            // Just statically doing all years for simplicity. (No javascript is annoying.)
-            map = new LinkedHashMap<String, String>();
-            for (int i = MIN_YEAR; i <= MAX_YEAR; ++i) {
-                map.put(Integer.toString(i), Integer.toString(i));
-            }
-            current = request.getParameter("year");
-            if (current == null) {
-                current = Integer.toString(tomorrow.get(Calendar.YEAR));
-            }
-            request.setAttribute("years", genOptions(current, map));
+            request.setAttribute("date", current);
 
             // Just statically doing all durations for simplicity. (No javascript is annoying.)
             map = new LinkedHashMap<String, String>();
